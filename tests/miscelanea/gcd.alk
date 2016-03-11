@@ -1,0 +1,18 @@
+/*
+  gcd
+  krun tests/gcd.alk -cINIT=".Map"
+*/
+gcd(a, b)
+{
+  while (a != b) {
+    if (a > b)  a = a - b;
+    if (b > a) b = b - a;
+  }
+  return a;
+}
+
+x = gcd(12, 8);
+
+
+
+

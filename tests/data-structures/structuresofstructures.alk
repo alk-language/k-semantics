@@ -1,0 +1,10 @@
+/*
+  structures of structures
+  line 1 uncomented: krun tests/structuresofstructures.alk -cINIT=".Map"
+  line 1 comented: krun tests/structuresofstructures.alk -cINIT="s |-> { A -> { x -> 12 y -> 56 } B -> { x -> -43 y -> 98 } }"
+*/
+s = { A -> { x -> 12 y -> 56 } B -> { x -> -43 y -> 98 } }; 
+u = s.B;
+v = s.B.x;
+s.B.y = 55;
+

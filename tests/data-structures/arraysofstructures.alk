@@ -1,0 +1,9 @@
+/*
+  arrays of structures
+  line 1 uncomented: krun tests/ex1.alk -cINIT=".Map"
+  line 1 comented: krun tests/ex1.alk -cINIT="a |->  [ { x -> 1 y -> 2 }, { x -> 4 y -> 5 }  ]"
+*/ 
+a = [ { x -> 1 y -> 2 }, { x -> 4 y -> 5 }  ]; 
+b = a[1];
+c = a[1].y;
+a[1].x = 77;

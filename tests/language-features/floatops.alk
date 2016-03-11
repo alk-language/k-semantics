@@ -1,0 +1,10 @@
+/*
+  float operations
+  krun tests/ex1.alk -cINIT=".Map"
+*/
+
+a = 0.314e+1;
+
+
+
+

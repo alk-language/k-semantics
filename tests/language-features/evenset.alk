@@ -1,0 +1,4 @@
+// s = emptySet;
+ s = { 0 };
+ forall x in a   // a is a set
+   if (x %2 == 0) s = s U singletonSet(x);

@@ -1,0 +1,21 @@
+/*
+  linear lists (sequences)
+  line 1 uncomented: krun tests/seq.alk -cINIT=".Map"
+  line 1 comented: krun tests/seq.alk -cINIT="ll |->  < 8, 3, 9, 4 >"
+*/
+ll = < 8, 3, 9, 4 >;
+i = 1;
+x = ll.at(i + 1);
+y = ll.topFront();
+z = ll.topBack();
+ll.insert(2, 22);
+ll.update(3, 33);
+l2 = ll;
+l2.removeAt(0);
+l2.removeAt(2);
+l2.removeAt(2);
+l3 = ll;
+l3.update(2,4);
+l3.removeAllEqTo(4);
+//l3.removeAllEqTo(4);
+

@@ -1,0 +1,5 @@
+x1 = random(3);
+x2 = random(3);
+x3 = random(3);
+x4 = random(3);
+x5 = random(3);

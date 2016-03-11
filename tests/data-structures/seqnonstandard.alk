@@ -1,0 +1,11 @@
+/*
+  linear lists (sequences) used as arrays 
+  line 1 uncomented: krun tests/seqnonstandard.alk -cINIT=".Map"
+  line 1 comented: krun tests/seqnonstandard.alk -cINIT="ll |->  < 8, 3, 9, 4 >"
+*/
+ll = < 8, 3, 9, 4 >;
+x = ll[2];
+ll[3] = 33;
+ll[4] = 44;
+
+
