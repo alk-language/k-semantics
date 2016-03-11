@@ -1,8 +1,10 @@
 // TODO: add the copyright notice
 //require "domains.k"
+require "../packages/compgeom.k"
 
 module ALK-SYNTAX 
 
+  imports COMPGEOM
   syntax DVar ::= "NULL"
 
   syntax ValFld ::=
@@ -108,6 +110,8 @@ module ALK-SYNTAX
        Exp "&&" Exp          [left, strict] 
      > Exp "||" Exp          [left, strict]
 
+  syntax Pckg ::= Stmt
+
   syntax Stmt ::=
         Id "(" Params ")" "{" Stmt "}"
      |  FunctionCall ";"                         [strict]
@@ -132,6 +136,7 @@ module ALK-SYNTAX
      |  "forall" Id "in" Exp  Stmt              [strict(2)]
      |  "for" "(" VarAssign ";" Exp";" VarUpdate ")" Stmt
      | "return" Exp ";"                         [strict]
+     | "import" Pckg ";"
      > Stmt Stmt [right]
 
   syntax Ids ::= List{Id, ","}
@@ -301,6 +306,7 @@ module ALK
 
   syntax Set ::= "$funNamesTemp" "(" K "," Map ")"   [function]
   syntax Set ::= "$funNames" "(" Map ")"             [function]
+
   rule $funNames(M) => $funNamesTemp(choice(keys(M)), M)  requires M =/=K .Map
   rule $funNamesTemp(X, M)  => SetItem(X) $funNames(removeAll(M, SetItem(X)))
     requires $isCode(M[X]) 
