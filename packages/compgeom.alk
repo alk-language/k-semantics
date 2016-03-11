@@ -1,0 +1,17 @@
+polar(CP) {
+  PP = { x -> 0.0 y -> 0.0};
+  PP.r = sqrt(CP.x * CP.x + CP.y * CP.y);
+  PP.theta = atan(CP.y / CP.x);
+  return PP;
+}
+
+cart(PP) {
+  CP = { x -> 0.0 y -> 0.0};
+  CP.x = PP.r * cos(PP.theta);
+  CP.y = PP.r * sin(PP.theta);
+  return CP;
+}
+
+CP1  = { x -> 1.0 y -> 1.0};
+PP1 = polar(CP1);
+
