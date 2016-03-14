@@ -15,7 +15,8 @@ module ALK-SYNTAX
 //  syntax KindOfSet ::= "{" ValueList "}"       // sets
 
   syntax Value ::=
-       Int
+       "NaV"    // Not a Value
+     | Int
      | Bool
      | Float
      | String
@@ -53,13 +54,13 @@ module ALK-SYNTAX
 
   syntax Exp ::=
        Id
-     | Value
-     | FunctionCall  
+     | Value  
      | IncDec
      | (Exp)                   [bracket]
      | "emptyList"
      | "emptySet"
-     | "sin" "(" Exp ")"       [strict]
+//	 > "-" Exp                              [strict]
+     > "sin" "(" Exp ")"       [strict]
      | "cos" "(" Exp ")"       [strict]
      | "tan" "(" Exp ")"       [strict]
      | "asin" "(" Exp ")"      [strict]
@@ -71,6 +72,7 @@ module ALK-SYNTAX
      | "int" "(" Exp ")"       [strict]
      | "new" "(" Exp ")"       [strict]
      | "random" "(" Exp ")"    [strict]
+	 | "float" "(" Exp ")"     [strict]
 //     | "{" Exp "}"            // singleton set
 //     | "<" Exp ">"            // singleton list
      |  "singletonSet" "(" Exp ")"          [strict]
@@ -78,6 +80,7 @@ module ALK-SYNTAX
      | "{" ConsListSpec "}"                 [strict]
      | "<" ConsListSpec ">"                 [strict]
      | "[" ConsListSpec "]"                 [strict]
+	 > FunctionCall
      > Exp "[" Exp "]"                      [strict]
      > Exp "." "at" "(" Exp ")"             [strict]
      | Exp "." "topFront" "(" ")"           [strict]
@@ -191,7 +194,8 @@ module ALK
   rule singletonSet(V:Value)  =>  { V, .ValueList }
   rule singletonList(V:Value) =>  < V, .ValueList >
 
-// operators  
+// operators
+  
   rule I1 * I2 => I1 *Int I2
   rule I1 / I2 => I1 /Int I2
   rule I1 % I2 => I1 %Int I2
@@ -205,9 +209,10 @@ module ALK
   rule I1:Int >= I2:Int => I1 >=Int I2
   rule I1:Int > I2:Int => I1 >Int I2  
 
+  rule float(I:Int) => Int2Float(I, 53, 11)
+  
   rule F1 * F2 => F1 *Float F2
   rule F1 / F2 => F1 /Float F2
-  rule F1 % F2 => F1 %Float F2
   rule F1 + F2 => F1 +Float F2
   rule F1 - F2 => F1 -Float F2
 
@@ -229,7 +234,50 @@ module ALK
   rule ceil(F:Float) => ceilFloat(F)
   rule floor(F:Float) => floorFloat(F)
   rule int(F:Float) => Float2Int(F)
+  
+  // conversions
+  rule I1:Int + F2:Float => float(I1) + F2
+  rule F1:Float + I2:Int => F1 + float(I2)
 
+  rule I1:Int - F2:Float => float(I1) - F2
+  rule F1:Float - I2:Int => F1 - float(I2)
+  
+  rule I1:Int * F2:Float => float(I1) * F2
+  rule F1:Float * I2:Int => F1 * float(I2)
+
+  rule I1:Int / F2:Float => float(I1) / F2
+  rule F1:Float / I2:Int => F1 / float(I2)
+  
+  rule I1:Int == F2:Float => float(I1) == F2
+  rule F1:Float == I2:Int => F1 == float(I2)
+
+  rule I1:Int <= F2:Float => float(I1) <= F2
+  rule F1:Float <= I2:Int => F1 <= float(I2)
+  
+  rule I1:Int >= F2:Float => float(I1) >= F2
+  rule F1:Float >= I2:Int => F1 >= float(I2)
+  
+  rule I1:Int != F2:Float => float(I1) != F2
+  rule F1:Float != I2:Int => F1 != float(I2)
+  
+  rule I1:Int < F2:Float => float(I1) < F2
+  rule F1:Float < I2:Int => F1 < float(I2)
+  
+  rule I1:Int > F2:Float => float(I1) > F2
+  rule F1:Float > I2:Int => F1 > float(I2)
+
+  rule sin(I:Int) => sin(float(I))
+  rule cos(I:Int) => cos(float(I))
+  rule tan(I:Int) => tan(float(I))
+  rule asin(I:Int) => asin(float(I))
+  rule acos(I:Int) => acos(float(I))
+  rule atan(I:Int) => atan(float(I))
+
+  rule sqrt(I:Int) => sqrt(float(I))
+  rule ceil(I:Int) => ceil(float(I))
+  rule floor(I:Int) => floor(float(I))
+  rule int(I:Int) => I
+ 
   rule true && B:Exp => B 
   rule false && B:Exp => false 
   rule true || B:Exp => true
@@ -279,12 +327,14 @@ module ALK
 
   rule <k> success; </k>
        <state> Sigma:Map => $cleanup(Sigma) </state>
-       <stack> _ => .List </stack>
+       (<stack> _ </stack> => .Bag)
+       (<outpar> _ </outpar> => .Bag)
     requires $isNotClean(Sigma)
 
   rule <k> failure; </k>
        <state> Sigma:Map => $cleanup(Sigma) </state>
-       <stack> _ => .List </stack>
+       (<stack> _ </stack> => .Bag)
+       (<outpar> _ </outpar> => .Bag)
     requires $isNotClean(Sigma)
 
   rule <k> .K </k>
@@ -430,7 +480,7 @@ module ALK
   rule <k> X:Id.F:Id = V:ExtendedValue => V'.$update(F, V) ...</k>
        <state>... X |-> (V':Value => V'.$update(F, V)) ...</state>
 
-  rule <k> X:Exp.F:Id = V:Value => X = $updateVal(F, V) ...</k>
+  rule <k> X:Exp.F:Id = V:Value => V ...</k>
        <state> St:Map => St[X <- { F -> V .ValFldList}] </state>
      requires isId(X) andBool notBool X in keys(St)
 
@@ -616,7 +666,8 @@ module ALK
 // final state
 
   rule <k> .K </k>
-       (<stack> _ </stack> => .Bag)  
+       (<stack> _ </stack> => .Bag)
+       (<outpar> _ </outpar> => .Bag)  
 
 /*
    \section{Internal Operations}

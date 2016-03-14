@@ -1,0 +1,11 @@
+cart(PP) {
+  CP.x = PP.r * cos(PP.theta);
+  CP.y = PP.r * sin(PP.theta);
+  return CP;
+}
+
+pi = 3.14159265359;
+
+PP1.r = sqrt(2);
+PP1.theta = pi / 4;
+CP1 = cart(PP1);

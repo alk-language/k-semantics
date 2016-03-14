@@ -1,0 +1,36 @@
+sign2xTriArea(A, B, C) {
+  d1 = B.y * A.x + C.y * B.x + A.y * C.x;
+  d2 = C.x * B.y + B.x * A.y + A.x * C.y;
+  return d1 - d2;
+}
+
+ccw(A, B, C) 
+/*
+  turn left = +1;
+  turn right = -1;
+  colinear = 0;
+*/
+{
+  ax2 = sign2xTriArea(A, B, C);
+  if (ax2 > 0.0) return 1;
+  if (ax2 < 0.0) return -1;
+  return 0;
+}
+
+A = {x -> 1.0 y -> 1.0};
+B = {x -> 3.0 y -> 1.0};
+C = {x -> 2.0 y -> 2.0};
+
+t1 = ccw(A, B, C);
+t2 = ccw(A, C, B);
+t3 = ccw(A, B, B);
+
+a1 = sign2xTriArea(A, B, C);
+a2 = sign2xTriArea(A, C, B);
+
+P =  {x -> -7.0 y -> -9.0};
+
+a3 = (sign2xTriArea(P, A, B)) +
+     (sign2xTriArea(P, B, C)) + 
+	 (sign2xTriArea(P, C, A));
+	 

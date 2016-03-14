@@ -1,0 +1,35 @@
+lineIntersection(l1, l2) {
+  det = l1.a *l2.b - l1.b*l2.a;
+  detx = l1.b*l2.c - l1.c *l2.b;
+  dety = l1.c*l2.a - l1.a *l2.c;
+  if (det == 0.0) return NaV; // NaV = "Not a Value"
+  P.x = detx / det;
+  P.y = dety / det;
+  return P;
+}
+
+line(P,Q) {
+  if (P.x == Q.x && P.y == Q.y)
+    return {a -> 0.0 b -> 0.0 c -> 0.0};
+  if (P.x == Q.x) {
+    l.a = 1.0;
+	l.b = 0.0;
+	lc = P.x;
+	return l;
+  }
+  l.a = 0.0 - (P.y - Q.y) / (P.x - Q.x);
+  l.b = 1.0;
+  l.c = 0.0 - P.y - l.a*P.x;
+  return l;
+}
+
+P1 = {x -> 3.0 y -> 7.0};
+Q1 = {x -> 5.0 y -> 2.0};
+l1 = line(P1, Q1);
+
+P2 = {x -> 2.0 y -> 3.0};
+Q2 = {x -> 3.0 y -> 7.0};
+l2 = line(P2, Q2);
+
+P = lineIntersection(l1, l2);
+Q = lineIntersection(l1, line(P1, Q1));

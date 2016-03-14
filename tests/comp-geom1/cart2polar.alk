@@ -1,0 +1,42 @@
+cart(PP) {
+  CP.x = PP.rho * cos(PP.theta);
+  CP.y = PP.rho * sin(PP.theta);
+  return CP;
+}
+
+polar(CP) {
+  PP.rho = sqrt(CP.x * CP.x + CP.y * CP.y);
+  if (CP.x == 0.0) {
+    if (CP.y < 0.0) theta1 =  0.0 - pi/2.0;
+    else theta1 =  pi/2.0;
+  }
+  else {
+    arctg = atan(CP.y / CP.x);
+	if (CP.x >= 0.0) theta1 = arctg;
+    else {
+	  if (CP.y < 0.0) theta1 =  arctg - pi;
+      else theta1 = arctg + pi;
+	}
+  }
+  if (theta1 >= 0) PP.theta = theta1;
+  else PP.theta = theta1 + 2 * pi;
+  return PP;
+}
+
+pi = 3.14159265359;
+
+CP1  = { x -> 1.0 y -> 1.0};
+PP1 = polar(CP1);
+CP1 = cart(PP1);
+
+CP2  = { x -> -1.0 y -> 1.0};
+PP2 = polar(CP2);
+CP2 = cart(PP2);
+
+CP3  = { x -> -1.0 y -> -1.0};
+PP3 = polar(CP3);
+CP3 = cart(PP3);
+
+CP4  = { x -> 1.0 y -> -1.0};
+PP4 = polar(CP4);
+CP4 = cart(PP4);
