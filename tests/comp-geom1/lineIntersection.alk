@@ -2,10 +2,10 @@ lineIntersection(l1, l2) {
   det = l1.a *l2.b - l1.b*l2.a;
   detx = l1.b*l2.c - l1.c *l2.b;
   dety = l1.c*l2.a - l1.a *l2.c;
-  if (det == 0.0) return NaV; // NaV = "Not a Value"
+  if (det == 0.0) return emptySet;
   P.x = detx / det;
+  return singletonSet(P);
   P.y = dety / det;
-  return P;
 }
 
 line(P,Q) {

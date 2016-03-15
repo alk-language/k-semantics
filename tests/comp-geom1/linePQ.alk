@@ -1,4 +1,4 @@
-line(P,Q) {
+line(P, Q) {
   if (P.x == Q.x && P.y == Q.y)
     return {a -> 0.0 b -> 0.0 c -> 0.0};
   if (P.x == Q.x) {

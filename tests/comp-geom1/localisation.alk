@@ -1,0 +1,72 @@
+lineIntersection(l1, l2) {
+  det = l1.a *l2.b - l1.b*l2.a;
+  detx = l1.b*l2.c - l1.c *l2.b;
+  dety = l1.c*l2.a - l1.a *l2.c;
+  if (det == 0.0) return emptySet;
+  IP.x = detx / det;
+  IP.y = dety / det;
+  return singletonSet(IP);
+}
+
+line(P, Q) {
+  if (P.x == Q.x && P.y == Q.y)
+    return {a -> 0.0 b -> 0.0 c -> 0.0};
+  if (P.x == Q.x) {
+    l.a = 1.0;
+	l.b = 0.0;
+	lc = P.x;
+	return l;
+  }
+  l.a = 0.0 - (P.y - Q.y) / (P.x - Q.x);
+  l.b = 1.0;
+  l.c = 0.0 - P.y - l.a*P.x;
+  return l;
+}
+
+count(i, out j) {
+  if((L[i].y > P.y && L[i+1].y > P.y) || (L[i].y < P.y && L[i+1].y < P.y)) {
+    j = i+1;
+    return 0;
+  }
+  dP. a = 0; dP.b = 1; dP.c =  0 - P.y;  //dreapta suport a semidreptei
+  Q = lineIntersection(line(L[i], L[i+1]), dP)[0];
+  if (Q.x < P.x) {
+    j = i+1;
+    return 0;
+  }
+  if (Q.x != L[i+1].x || Q.y != L[i+1].y) {
+    j = i+1;
+    return 1;
+  }
+  j = i+1;
+  while(L[j].y == P.y && L[j].x >= P.x) ++j;
+  if((L[i].y > P.y && L[j].y > P.y) || (L[i].y < P.y && L[j].y < P.y)) 
+    return 0;
+  return 1;
+}
+
+isInteriorOf(L, P) {
+  L.pushBack(L[0]); 
+  counter = 0;
+  for (i = 0; i < L.size()-1; i = j) 
+    counter = counter + count(i, j);
+  return counter % 2 == 1;
+}
+
+L = emptyList;
+L[0] = { x -> 1 y -> 1 };
+L[1] = { x -> 2 y -> 4 };
+L[2] = { x -> 3 y -> 2 };
+L[2] = { x -> 4 y -> 2 };
+L[3] = { x -> 5 y -> 4 };
+L[4] = { x -> 6 y -> 1 };
+
+//P = { x -> 4 y -> 3 };
+//P = { x -> 1 y -> 3 };
+//P = { x -> 7 y -> 3 };
+//P = { x -> 2 y -> 3 };
+//P = { x -> 1 y -> 4 };
+P = { x -> 2 y -> 2 };
+
+b = isInteriorOf(L, P);
+  

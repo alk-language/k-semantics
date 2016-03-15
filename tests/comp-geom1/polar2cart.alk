@@ -9,3 +9,16 @@ pi = 3.14159265359;
 PP1.r = sqrt(2);
 PP1.theta = pi / 4;
 CP1 = cart(PP1);
+
+PP2.r = sqrt(2);
+PP2.theta = 3 * pi / 4;
+CP2 = cart(PP2);
+
+PP3.r = sqrt(2);
+PP3.theta = 5 * pi / 4;
+CP3 = cart(PP3);
+
+PP4.r = sqrt(2);
+PP4.theta = 7 * pi / 4;
+CP4 = cart(PP4);
+

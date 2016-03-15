@@ -36,7 +36,7 @@ module ALK-SYNTAX
 
   syntax ConsListSpec ::= Interval | ConsListWithPred
 
-  syntax FunctionCall ::= Exp "("  Exps ")" [strict(1)]
+//  syntax FunctionCall ::= Exp "("  Exps ")" [strict(1)]
 
   syntax VarAssign ::= Exp "=" Exp   [strict(2)]
 
@@ -77,10 +77,11 @@ module ALK-SYNTAX
 //     | "<" Exp ">"            // singleton list
      |  "singletonSet" "(" Exp ")"          [strict]
      |  "singletonList" "(" Exp ")"         [strict]
+//	 > FunctionCall
+	 > Exp "("  Exps ")"                    [strict(1)]
      | "{" ConsListSpec "}"                 [strict]
      | "<" ConsListSpec ">"                 [strict]
      | "[" ConsListSpec "]"                 [strict]
-	 > FunctionCall
      > Exp "[" Exp "]"                      [strict]
      > Exp "." "at" "(" Exp ")"             [strict]
      | Exp "." "topFront" "(" ")"           [strict]
@@ -117,7 +118,8 @@ module ALK-SYNTAX
 
   syntax Stmt ::=
         Id "(" Params ")" "{" Stmt "}"
-     |  FunctionCall ";"                         [strict]
+//     |  FunctionCall ";"                         [strict]
+     | Exp "("  Exps ")" ";"                     [strict(1)]
      |  VarUpdate ";"                            [strict]
      |  Exp "." "update" "(" Exp "," Exp ")" ";" [strict(2,3)]
      |  Exp "." "insert" "(" Exp "," Exp ")" ";" [strict(2,3)]
