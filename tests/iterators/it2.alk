@@ -1,0 +1,13 @@
+L = < 2, 5, 8 >;
+p = L.first() + 1;
+q = p;
+a = p->insert(77);
+--p;
+b = p->delete();
+q->insert(77);
+--q;
+q->delete();
+
+
+
+
