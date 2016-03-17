@@ -467,6 +467,12 @@ module ALK
        <state> Sigma:Map => removeAll(Sigma, SetItem($f)) </state>
     requires A >Int B
 
+// Exp == Exp for non-sacalars
+
+  rule [ V1:ValueList ] == [ V2:ValueList ] => V1 ==List V2
+  rule < V1:ValueList > == < V2:ValueList > => V1 ==List V2
+  rule { V1:ValueList } == { V2:ValueList } => V1 ==Set V2
+  rule { V1:ValFldList } == { V2:ValFldList } => V1 ==FldList V2
 
 // Exp "=" Exp
 
@@ -995,4 +1001,34 @@ module ALK
   rule params2Set(X:Id, Xs:Params)  => SetItem(X) params2Set(Xs)
   // the output params are ignored
   rule params2Set(out X:Id, Xs:Params)  => params2Set(Xs)
+
+  syntax Bool ::= ValueList "==List" ValueList [function]
+  rule (V1:Value, Vs1:ValueList) ==List (V2:Value, Vs2:ValueList)
+       =>
+       V1 ==Val V2 andBool Vs1 ==List Vs2
+  rule .ValueList ==List .ValueList => true
+  rule Vs1:ValueList ==List Vs2:ValueList => false [owise]
+
+  syntax Bool ::= ValueList "==Set" ValueList [function]
+  rule Vs1:ValueList ==Set Vs2:ValueList 
+       =>
+       Vs1 $setminus Vs2 ==K .ValueList andBool
+       Vs2 $setminus Vs1 ==K .ValueList
+
+  syntax Bool ::= Value "==Val" Value
+  rule V1:Int ==Val V2:Int => V1 ==Int V2
+  rule V1:Bool ==Val V2:Bool => V1 ==Bool V2
+  rule V1:Float ==Val V2:Float => V1 ==Float V2
+  rule V1:String ==Val V2:String => V1 ==String V2
+  rule { V1:ValueList } ==Val { V2:ValueList } => V1 ==Set V2
+  rule [ V1:ValueList ] ==Val [ V2:ValueList ] => V1 ==List V2 
+  rule < V1:ValueList > ==Val < V2:ValueList > => V1 ==List V2 
+
+  syntax Bool ::= ValFldList "==FldList" ValFldList [function]
+  rule (X1:Id -> V1:Value Vs1:ValFldList) ==FldList (X2:Id -> V2:Value Vs2:ValFldList)
+       =>
+       X1 ==K X2 andBool V1 ==Val V2 andBool Vs1 ==FldList Vs2
+  rule .ValFldList ==FldList .ValFldList => true
+  rule Vs1:ValFldList ==FldList Vs2:ValFldList => false [owise]
+
 endmodule
