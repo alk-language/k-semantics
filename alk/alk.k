@@ -1,4 +1,5 @@
 // TODO: add the copyright notice
+// TODO: change the syntax for structures: x : v instead of x -> v
 //require "domains.k"
 require "../packages/compgeom.k"
 
@@ -43,6 +44,8 @@ module ALK-SYNTAX
   syntax IncDec ::=
        "++" Id                
      | "--" Id
+     | "++%" Id                
+     | "--%" Id
 
   syntax VarUpdate ::=  
        VarAssign
@@ -59,6 +62,7 @@ module ALK-SYNTAX
      | (Exp)                   [bracket]
      | "emptyList"
      | "emptySet"
+     > "*" Exp                 [strict]
 //	 > "-" Exp                              [strict]
      > "sin" "(" Exp ")"       [strict]
      | "cos" "(" Exp ")"       [strict]
@@ -72,7 +76,7 @@ module ALK-SYNTAX
      | "int" "(" Exp ")"       [strict]
      | "new" "(" Exp ")"       [strict]
      | "random" "(" Exp ")"    [strict]
-	 | "float" "(" Exp ")"     [strict]
+     | "float" "(" Exp ")"     [strict]
 //     | "{" Exp "}"            // singleton set
 //     | "<" Exp ">"            // singleton list
      |  "singletonSet" "(" Exp ")"          [strict]
@@ -95,6 +99,10 @@ module ALK-SYNTAX
      | Exp "." "pushBack" "(" Exp ")"       [strict]
      | Exp "." "popFront" "(" ")"           [strict]
      | Exp "." "popBack" "(" ")"            [strict]
+     | Exp "->" "insert" "(" Exp ")"        [strict]
+     | Exp "->" "delete" "(" ")"            [strict]
+     | Id "." "first" "(" ")"              // [strict]
+     | Id "." "end" "(" ")"                // [strict]
      > Exp "." Id                           [left, strict(1)]
      > left:
        Exp "*" Exp           [left, strict] 
@@ -103,6 +111,8 @@ module ALK-SYNTAX
      > left:
        Exp "+" Exp           [left, strict] 
      | Exp "-" Exp           [left, strict]
+     | Exp "+%" Exp          [left, strict] 
+     | Exp "-%" Exp          [left, strict]
      > left:
        Exp "U" Exp           [left, strict]
      | Exp "^" Exp           [left, strict]
@@ -119,7 +129,7 @@ module ALK-SYNTAX
   syntax Stmt ::=
         Id "(" Params ")" "{" Stmt "}"
 //     |  FunctionCall ";"                         [strict]
-     | Exp "("  Exps ")" ";"                     [strict(1)]
+     |  Exp "("  Exps ")" ";"
      |  VarUpdate ";"                            [strict]
      |  Exp "." "update" "(" Exp "," Exp ")" ";" [strict(2,3)]
      |  Exp "." "insert" "(" Exp "," Exp ")" ";" [strict(2,3)]
@@ -129,6 +139,8 @@ module ALK-SYNTAX
      |  Exp "." "pushBack" "(" Exp ")" ";"       [strict(2)]
      |  Exp "." "popFront" "(" ")" ";"
      |  Exp "." "popBack" "(" ")" ";"
+     |  Exp "->" "insert" "(" Exp ")" ";"        [strict]
+     |  Exp "->" "delete" "(" ")" ";"            [strict]
      | "choose"  Id "in" Exp ";"                 [prefer, strict(2)]
      | "choose"  Id "in" Exp "s.t." Exp ";"      [strict(2)]
      | "success" ";"
@@ -547,6 +559,115 @@ module ALK
   rule { Vs1:ValueList } ^ { Vs2:ValueList } => { Vs1 $cap Vs2 }
   rule { Vs1:ValueList } \ { Vs2:ValueList } => { Vs1 $setminus Vs2 }
 
+// lists with iterators
+
+  rule it(X, I) + J => it(X, I) +It J
+  rule it(X, I) - J => it(X, I) -It J
+
+  rule <k> it(X, I) +% J => (it(X, I) +It J) %It (St[X].$size()) ...</k>
+       <state> St:Map </state>
+  rule <k> it(X, I) -% J => (it(X, I) -It J) %It (St[X].$size()) ...</k>
+       <state> St:Map </state>
+
+
+  syntax ItValue ::=
+       it(Id, Int)
+     | ItValue "+It" Int [function]
+     | ItValue "-It" Int [function]
+     | ItValue "%It" Int [function]
+
+  rule it(X, I) +It J => it(X, I +Int J)
+  rule it(X, I) -It J => it(X, I -Int J)
+
+  rule it(X, I) %It J => it(X, I) requires (0 <=Int I) andBool (I <Int J)
+  rule it(X, I) %It J => it(X, I -Int J) requires (0 <=Int I) andBool (I >=Int J)
+  rule it(X, I) %It J => it(X, I +Int J) requires (I <Int 0)
+  rule it(X, I) %It 0 => it(X, -1)
+
+
+  rule it(X, I) != it(Y, J) => (X ==K Y) andBool (I =/=Int J)
+  rule it(X, I) == it(Y, J) => (X ==K Y) andBool (I ==Int J)
+  rule it(X, I) <= it(Y, J) => (X ==K Y) andBool (I <=Int J)
+  rule it(X, I) >= it(Y, J) => (X ==K Y) andBool (I >=Int J)
+  rule it(X, I) < it(Y, J) => (X ==K Y) andBool (I <Int J)
+  rule it(X, I) > it(Y, J) => (X ==K Y) andBool (I >Int J)
+
+  syntax Id  ::= "$objIt" "(" ItValue ")"  [function]
+  syntax Int ::= "$valIt" "(" ItValue ")"  [function]
+
+  rule $objIt(it(X, _:Int)) => X
+  rule $valIt(it(_:Id, I)) => I
+
+  syntax Value ::= ItValue
+
+  // Id.first()
+  rule X:Id.first() => it(X, 0)
+
+  // Id.end()
+  rule <k> X:Id.end() => it(X, V.$size()) ...</k>
+       <state>... X |-> V ...</state>
+
+// "++" Id
+  rule <k> ++ It:Id => St[It] +It 1 ...</k>
+       <state> St:Map => St[It <- (St[It] +It 1)] </state>
+    requires isItValue(St[It]) andBool ($valIt(St[It]) <Int (St[$objIt(St[It])].$size())) 
+
+  rule <k> ++ It:Id => it($objIt(St[It]), St[$objIt(St[It])].$size()) ...</k>
+       <state> St:Map => St[It <- (St[$objIt(St[It])].$size())] </state>
+    requires isItValue(St[It]) andBool ($valIt(St[It]) >=Int St[$objIt(St[It])].$size())
+
+
+// "--" Id
+  rule <k> -- It:Id => St[It] -It 1 ...</k>
+       <state> St:Map => St[It <- (St[It] -It 1)] </state>
+    requires isItValue(St[It]) andBool ($valIt(St[It]) >Int 0) 
+
+  rule <k> -- It:Id => it($objIt(St[It]), -1) ...</k>
+       <state> St:Map => St[It <- it($objIt(St[It]), -1)] </state>
+    requires isItValue(St[It]) andBool ($valIt(St[It]) <=Int 0)
+
+// iterators on circular lists
+
+// "++%" Id
+  rule <k> ++% It:Id => (St[It] +It 1) %It (St[$objIt(St[It])].$size()) ...</k>
+       <state> St:Map => St[It <- (St[It] +It 1) %It (St[$objIt(St[It])].$size())] </state>
+    requires isItValue(St[It]) // andBool ($valIt(St[It]) <Int (St[$objIt(St[It])].$size())) 
+
+/*
+  rule <k> ++% It:Id => St[$objIt(St[It])].$size() ...</k>
+       <state> St:Map => St[It <- (St[$objIt(St[It])].$size())] </state>
+    requires isItValue(St[It]) andBool ($valIt(St[It]) >=Int St[$objIt(St[It])].$size())
+*/
+
+// "--%" Id
+  rule <k> --% It:Id => (St[It] -It 1) %It (St[$objIt(St[It])].$size()) ...</k>
+       <state> St:Map => St[It <- (St[It] -It 1) %It (St[$objIt(St[It])].$size())] </state>
+    requires isItValue(St[It]) // andBool ($valIt(St[It]) >Int 0) 
+/*
+  rule <k> -- It:Id => St[$objIt(St[It])].$size() ...</k>
+       <state> St:Map => St[It <- -1] </state>
+    requires isItValue(St[It]) andBool ($valIt(St[It]) <=Int 0)
+*/
+
+// * Exp
+
+  rule * it(X, I) => X.at(I)
+
+// Exp->insert(Exp)
+
+  rule it(X,I)->insert(V:Value) => X.insert(I, V)
+
+// Exp->insert(Exp)
+
+  rule it(X,I)->delete() => X.removeAt(I)
+
+// Exp->insert(Exp);
+
+  rule it(X,I)->insert(V:Value); => X = X.insert(I, V);
+
+// Exp->insert(Exp)
+
+  rule it(X,I)->delete(); => X = X.removeAt(I);
 
   // statements
 
@@ -578,6 +699,10 @@ module ALK
     bound to their corresponding values
   - then the body of the function is executed
 */
+
+  rule  E:Exp(Es:Exps); => E(Es) ~> HOLE:Value; // [heat]
+  rule V:Value ~> HOLE:Value; => V;             //[cool]                                                            
+
   syntax KItem ::= "[" K "," Map "," Params "]"
   rule <k> (lambda(Ps:Params).St:Stmt(Es:Exps) ~> K:K)
            =>

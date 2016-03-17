@@ -1,6 +1,7 @@
 /*
   gcd
   krun tests/gcd.alk -cINIT=".Map"
+  krun tests/gcd.alk -cINIT="u |-> 42 v |-> 56"
 */
 gcd(a, b)
 {
@@ -11,8 +12,9 @@ gcd(a, b)
   return a;
 }
 
-x = gcd(12, 8);
-
+//x = gcd(12, 8);
+//x = gcd(u, v);
+gcd(u,v);
 
 
 

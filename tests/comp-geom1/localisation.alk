@@ -23,12 +23,17 @@ line(P, Q) {
   return l;
 }
 
+onTheSameSide(P, Q, l) {
+  return (l.a * P.x + l.b * P.y + l.c) *
+         (l.a * Q.x + l.b * Q.y + l.c) > 0;
+}
+
 count(i, out j) {
-  if((L[i].y > P.y && L[i+1].y > P.y) || (L[i].y < P.y && L[i+1].y < P.y)) {
+  dP. a = 0; dP.b = 1; dP.c =  0 - P.y;  //dreapta suport a semidreptei
+  if(onTheSameSide(L[i], L[i+1], dP)) {
     j = i+1;
     return 0;
   }
-  dP. a = 0; dP.b = 1; dP.c =  0 - P.y;  //dreapta suport a semidreptei
   Q = lineIntersection(line(L[i], L[i+1]), dP)[0];
   if (Q.x < P.x) {
     j = i+1;
@@ -40,7 +45,7 @@ count(i, out j) {
   }
   j = i+1;
   while(L[j].y == P.y && L[j].x >= P.x) ++j;
-  if((L[i].y > P.y && L[j].y > P.y) || (L[i].y < P.y && L[j].y < P.y)) 
+  if(onTheSameSide(L[i], L[j], dP)) 
     return 0;
   return 1;
 }
@@ -65,8 +70,8 @@ L[4] = { x -> 6 y -> 1 };
 //P = { x -> 1 y -> 3 };
 //P = { x -> 7 y -> 3 };
 //P = { x -> 2 y -> 3 };
-//P = { x -> 1 y -> 4 };
-P = { x -> 2 y -> 2 };
+P = { x -> 1 y -> 4 };
+//P = { x -> 2 y -> 2 };
 
 b = isInteriorOf(L, P);
   
