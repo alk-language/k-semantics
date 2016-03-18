@@ -9,7 +9,7 @@ swap(out a, i, j) {
 @input: a[p..q]
 @output: k si a[p..q] partitionat de k
 */
-partitioneaza(out a, p, q) {
+partition(out a, p, q) {
   x = a[p] ; 
   i = p + 1;   j = q;
   while (i <= j) {
@@ -32,7 +32,7 @@ partitioneaza(out a, p, q) {
 */
 qsort(out a, p, q) {
   if (p < q) {
-    k = partitioneaza(a, p, q);
+    k = partition(a, p, q);
     qsort(a, p, k-1);
     qsort(a, k+1, q);
   }
@@ -42,7 +42,7 @@ qsort(b, 0, n-1);
 
 
 /*
-krun tests/qsort.alk -cINIT="n |-> 3 b |-> [3,1,2]"
+krun tests/qsort.alk -cINIT="n |-> 5 b |-> [5,1,3,2,4]"
 */
 
 
