@@ -51,7 +51,7 @@ if (/\<k\>(.*?)\<\/k\>.*?\<state\>(.*?)\<\/state\>.*?\<stack\>(.*?)\<\/stack\>/s
     $stk = $stack ? "Stack:\n$stk" : "";
 } elsif (/\<k\>(.*?)\<\/k\>.*?\<state\>(.*?)\<\/state\>/s) {
     ($k, $state) = ($1, $2);
-    $stk = $stack ? "Cannot retrieve stack content." : "";
+    $stk = $stack ? "Cannot retrieve stack content.\n" : "";
 } else {
     print "Program execution failed.\n";
     exit 1;
