@@ -1,0 +1,71 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Getopt::Long::Descriptive;
+
+
+# declare options and generate the usage message
+my ($opt, $usage) = describe_options(
+    'alk(.exe) %o <file.alk>',
+    [ 'init|i=s',      "the initial Alk state", { default => ".Map"  } ],
+    [ 'stack|s',       "show stack content",    { default => 0 } ],
+    [ 'krun|k=s',      "path to krun",          { default => "krun" } ],
+    [ 'directory|d=s', "path to directory where alk-kompiled resides", 
+                                                { default => "." } ],
+    [],
+    [ 'help|h',        "print usage message and exit" ],
+  );
+
+
+# exit if no file provided
+if (scalar @ARGV < 1) {
+    if ($opt->help) {
+	print "Execute an Alk program using the K definition of the language.\n";
+	print "Usage:\n$usage";
+	exit(0); # enit normally
+    } else {
+	print "Please provide an Alk file.\nUsage:\n$usage";
+	exit 1;
+    }
+}
+
+# get the Alk program file
+my $file  = shift @ARGV;
+
+# collect options data
+my $krun   = $opt->krun;
+my $init   = $opt->init;
+my $stack  = $opt->stack;
+my $alkdir = $opt->directory;
+
+# execute krun on file with 
+local $_ = `$krun $file -cINIT="$init" --directory "$alkdir"`;
+
+
+# get content of <k>, <state>, and <stack> (eventually)
+my ($k, $state, $stk) = ("", "", "");
+if (/\<k\>(.*?)\<\/k\>.*?\<state\>(.*?)\<\/state\>.*?\<stack\>(.*?)\<\/stack\>/s) {
+    ($k, $state, $stk) = ($1, $2, $3);
+    $stk = $stack ? "Stack:\n$stk" : "";
+} elsif (/\<k\>(.*?)\<\/k\>.*?\<state\>(.*?)\<\/state\>/s) {
+    ($k, $state) = ($1, $2);
+    $stk = $stack ? "Cannot retrieve stack content." : "";
+} else {
+    print "Program execution failed.\n";
+    exit 1;
+}
+
+
+# trim <k>'s content
+$k =~ s/^\s+|\s+$//g;
+
+# main
+if ($k eq ".K") {
+    print "State:\n$state\n$stk";
+} elsif (($k eq "success ;") or ($k eq "failure ;")) {
+    print "Program status: $k\nState:\n$state\n$stk";	
+} else {
+    print "Program execution failed; the following code got stuck during execution:\n$k\nState:\n$state\n$stk";
+}
