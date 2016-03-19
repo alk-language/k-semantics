@@ -93,8 +93,16 @@ Stack:
 
 Traps
 -----
+* If you ever get this error:
+```
+> alk tests\miscelanea\gcd.alk
+'krun' is not recognized as an internal or external command,
+operable program or batch file.
+Program execution failed.
+```
+then `alk` is not able to find the path to `krun`. In this case, you can either edit the `PATH` environment variable or use the `--krun` when running `alk`.
 
-If you get this error:
+* Also, if you get this error:
 ```
 > alk tests/miscelanea/gcd.alk --directory alk 
 [Error] Critical: Kompiled definition is out of date with the latest version of
