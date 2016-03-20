@@ -8,12 +8,12 @@ use Getopt::Long::Descriptive;
 
 # declare options and generate the usage message
 my ($opt, $usage) = describe_options(
-    'alk(.exe) %o <file.alk>',
-    [ 'init|i=s',      "the initial Alk state", { default => ".Map"  } ],
-    [ 'stack|s',       "show stack content",    { default => 0 } ],
-    [ 'krun|k=s',      "path to krun",          { default => "krun" } ],
-    [ 'directory|d=s', "path to directory where alk-kompiled resides", 
-                                                { default => "." } ],
+    '%c [OPTIONS]... [file.alk]',
+    [ 'init=s',      "the initial Alk state", { default => ".Map"  } ],
+    [ 'stack',       "show stack content",    { default => 0 } ],
+    [ 'krun=s',      "path to krun executable",          { default => "krun" } ],
+    [ 'directory=s', "path to directory where alk-kompiled resides", 
+                                              { default => "." } ],
     [],
     [ 'help|h',        "print usage message and exit" ],
   );
@@ -23,10 +23,10 @@ my ($opt, $usage) = describe_options(
 if (scalar @ARGV < 1) {
     if ($opt->help) {
 	print "Execute an Alk program using the K definition of the language.\n";
-	print "Usage:\n$usage";
+	print "Usage: $usage";
 	exit(0); # enit normally
     } else {
-	print "Please provide an Alk file.\nUsage:\n$usage";
+	print "Please provide an Alk file.\nUsage: $usage";
 	exit 1;
     }
 }
