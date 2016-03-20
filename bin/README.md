@@ -16,7 +16,7 @@ How to use?
 -----------
 
 First, make sure that Alk is compiled, that is, check if `pathToAlk/alk/alk-kompiled` exists. Otherwise,
-compile the definition Alk that resides in the `alk` directory of this repo:
+compile the K definition of Alk that resides in the `alk` directory of this repo:
 
 ```> kompile alk.k```
 
@@ -68,7 +68,7 @@ State:
 
 ```
 
-By default, `alk` displays the program state. The tool also allows us to send an initial state for a programdirectly in the command line. For instance, let's modify our `gcd.alk` program like this:
+By default, `alk` displays the program state. The tool also allows us to send an initial state for a program directly in the command line. For instance, let's modify our `gcd.alk` program like this:
 
 ```
 // Find the greatest common divisor of two numbers
@@ -85,7 +85,7 @@ x = gcd(u, v);
 ```
 
 Note that we've introduced two unkonwn variables, `u` and `v`.
-Now, we use the `--init` option to pass the initial values of `u` and `v`.
+Now, we use the `--init` option to pass the initial values of `u` and `v`:
 
 ```
 > alk gcd.alk  --init "u|-> 42 v |-> 56"
