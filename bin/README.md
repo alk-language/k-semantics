@@ -34,7 +34,7 @@ This will generate a file called `alk-kompiled` in the same directory.
 and you'll get:
 ```
 Please provide an Alk file.
-Usage: alk.exe [OPTIONS]... [file.alk]
+Usage: alk [OPTIONS]... [file.alk]
         --init STR        the initial Alk state
         --stack           show stack content
         --krun STR        path to krun executable
