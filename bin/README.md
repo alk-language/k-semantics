@@ -28,14 +28,14 @@ This will generate `alk-kompiled` in the same directory.
 
 2. Add `bin` (the folder where this README file resides) into your system's PATH.
 
-3. Run `alk` (or `alk.exe` on Windows) for the first time:
+3. Run `alki` (or `alki.exe` on Windows) for the first time:
 
-```> alk```
+```> alki```
 
 and you'll get:
 ```
 Please provide an Alk file.
-Usage: alk [OPTIONS]... [file.alk]
+Usage: alki [OPTIONS]... [file.alk]
         --init STR        the initial Alk state
         --stack           show stack content
         --krun STR        path to krun executable
@@ -68,7 +68,7 @@ State:
 
 ```
 
-By default, `alk` displays the program state. The tool also allows us to send an initial state for a program directly in the command line. For instance, let's modify our `gcd.alk` program like this:
+By default, `alki` displays the program state. The tool also allows us to send an initial state for a program directly in the command line. For instance, let's modify our `gcd.alk` program like this:
 
 ```
 // Find the greatest common divisor of two numbers
@@ -88,7 +88,7 @@ Note that we've introduced two unkonwn variables, `u` and `v`.
 Now, we use the `--init` option to pass the initial values of `u` and `v`:
 
 ```
-> alk gcd.alk  --init "u|-> 42 v |-> 56"
+> alki gcd.alk  --init "u|-> 42 v |-> 56"
 State:
 
     u |-> 42
@@ -100,7 +100,7 @@ State:
 If no initial state is provided the default value of `--init` is `.Map`, i.e., the empty state. 
 In that case, we get an error:
 ```
-> alk gcd.alk
+> alki gcd.alk
 Program execution failed; the following code got stuck during execution:
 u ~> evaluate HOLE, v wrt a, b to .ValueList ~> bindParams a, b to
       HOLE ~> { (while ( a != b ) { (if ( a > b ) (a = a - b) ;) (if ( b >
@@ -113,12 +113,12 @@ State:
 
 ```
 
-If the program execution fails, as above (since it cannot evaluate `u` for this program), `alk` displays the rest of the program to be executed and the current state. 
+If the program execution fails, as above (since it cannot evaluate `u` for this program), `alki` displays the rest of the program to be executed and the current state. 
 In such situations it is often needed to inspect the execution stack.
 For this, we use `--stack`, which shows the current stack (if available):
 
 ```
-> alk gcd.alk --stack
+> alki gcd.alk --stack
 Program execution failed; the following code got stuck during execution:
 u ~> evaluate HOLE, v wrt a, b to .ValueList ~> bindParams a, b to
       HOLE ~> { (while ( a != b ) { (if ( a > b ) (a = a - b) ;) (if ( b >
@@ -140,26 +140,26 @@ Traps
 -----
 * If you ever get this error:
 ```
-> alk tests\miscelanea\gcd.alk
+> alki tests\miscelanea\gcd.alk
 'krun' is not recognized as an internal or external command,
 operable program or batch file.
 Program execution failed.
 ```
-then `alk` is not able to find the path to `krun`. In this case, you can either edit the `PATH` environment variable or use the `--krun` when running `alk`.
+then `alki` is not able to find the path to `krun`. In this case, you can either edit the `PATH` environment variable or use the `--krun` when running `alki`.
 
 * Also, if you get this error:
 ```
-> alk tests/miscelanea/gcd.alk --directory alk 
+> alki tests/miscelanea/gcd.alk --directory alk 
 [Error] Critical: Kompiled definition is out of date with the latest version of
 the K tool. Please re-run kompile and try again.
 Program execution failed.
 ```
-then you probably compiled `alk.k` with a different version of `K` than the one `alk` is trying to use (which, by default, is taken from `PATH`). To fix this, you can either edit the `PATH` variable or use the `--krun` when running `alk`.
+then you probably compiled `alk.k` with a different version of `K` than the one `alki` is trying to use (which, by default, is taken from `PATH`). To fix this, you can either edit the `PATH` variable or use the `--krun` when running `alki`.
 
 
 Remarks
 -------
 
-The `alk.exe` file is generated using the `pp` tool (yes, `alk` is just a `Perl` script). 
+The `alki.exe` file is generated using the `pp` tool (yes, `alki` is just a `Perl` script). 
 However, if you encounter problems when running it you can install Perl on Windows (Straberry Perl is preferred), and then the `Getopt::Long::Descriptive` package using `cpan` (i.e., `cpan -i Getopt::Long::Descriptive`). 
-If the installation is successful, you can run directly the script by typing `perl alk` instead of `alk.exe`. For further details, please send an email to `andrei.arusoaie@gmail.com`.
+If the installation is successful, you can run directly the script by typing `perl alki` instead of `alki.exe`. For further details, please send an email to `andrei.arusoaie@gmail.com`.
