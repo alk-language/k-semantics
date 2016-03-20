@@ -8,9 +8,9 @@ Prerequisites:
   It is highly recommended to put the paths to K's binaries in your system's PATH.
 
 * Perl and CPAN - for Linux/Unix/MacOS users.
-* The `Getopt::Long::Descriptive` package - it can be installed in command line by typing `cpan -i Getopt::Long::Descriptive` (warning: you may need `sudo` to do this). 
+* The `Getopt::Long::Descriptive` package - for Linux/Unix/MacOS users. It can be installed in command line by typing `cpan -i Getopt::Long::Descriptive` (warning: you may need `sudo` to do this). 
 
-Instructions about using CPAN can be found [here](http://www.cpan.org/modules/INSTALL.html).
+Note: instructions about using CPAN can be found [here](http://www.cpan.org/modules/INSTALL.html).
 
 How to use?
 -----------
@@ -34,14 +34,13 @@ This will generate a file called `alk-kompiled` in the same directory.
 and you'll get:
 ```
 Please provide an Alk file.
-Usage:
-alk(.exe) [-dhiks] [long options...] <file.alk>
-        -i STR --init STR         the initial Alk state
-        -s --stack                show stack content
-        -k STR --krun STR         path to krun
-        -d STR --directory STR    path to directory where alk-kompiled resides
+Usage: alk.exe [OPTIONS]... [file.alk]
+        --init STR        the initial Alk state
+        --stack           show stack content
+        --krun STR        path to krun executable
+        --directory STR   path to directory where alk-kompiled resides
 
-        -h --help                 print usage message and exit
+        -h --help         print usage message and exit
 ```
 
 The tool typically requires an Alk program, an initial state, and the directory containing `alk-kompiled`. 
