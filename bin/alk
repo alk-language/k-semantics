@@ -11,11 +11,10 @@ use File::Spec;
 # default path to alk-kompiled 
 
 my $kompiled = File::Spec->catdir(
-    File::Spec->rel2abs(__FILE__),
+    abs_path($0),
     File::Spec->updir(),
     File::Spec->updir(),
     "alk");
-
 
 # declare options and generate the usage message
 my ($opt, $usage) = describe_options(
