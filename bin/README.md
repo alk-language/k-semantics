@@ -5,7 +5,7 @@ Prerequisites:
 -------------
 
 * The K framework - use the version of K indicated [here](https://github.com/alk-language/k-semantics).
-  It is highly recommended to put the paths to K's binaries in your system's PATH.
+  It is highly recommended to put the paths to K's binaries in your system's `PATH` environment variable.
 
 * Perl and CPAN - for Linux/Unix/MacOS users.
 * The `Getopt::Long::Descriptive` package - for Linux/Unix/MacOS users. It can be installed in command line by typing `cpan -i Getopt::Long::Descriptive` (warning: you may need `sudo` to do this). 
@@ -15,7 +15,8 @@ Note: instructions about using CPAN can be found [here](http://www.cpan.org/modu
 How to use?
 -----------
 
-1. Compile the definition Alk that resides in the `alk` directory of this repo:
+1. Make sure that Alk is compiled, that is, check if `pathToAlk/alk/alk-kompiled` exists. Otherwise,
+compile the definition Alk that resides in the `alk` directory of this repo:
 
 ```> kompile alk.k```
 
@@ -23,7 +24,7 @@ or
 
 ```> pathToK/bin/kompile alk.k```
 
-This will generate a file called `alk-kompiled` in the same directory.
+This will generate `alk-kompiled` in the same directory.
 
 2. Add `bin` (the folder where this README file resides) into your system's PATH.
 
@@ -43,22 +44,63 @@ Usage: alk [OPTIONS]... [file.alk]
         -h --help         print usage message and exit
 ```
 
-The tool typically requires an Alk program, an initial state, and the directory containing `alk-kompiled`. 
-This is how you run programs (this assumes that `krun` is in your system's PATH and you are in the top-level directory of this repo):
+The tool typically expects an Alk program as argument. Let's create a file, say `gcd.alk`, with the following content:
+```
+// Find the greatest common divisor of two numbers
+gcd(a, b)
+{
+  while (a != b) {
+    if (a > b)  a = a - b;
+    if (b > a) b = b - a;
+  }
+  return a;
+}
+
+x = gcd(42,56);
+```
+
+Now, we can simply run `gcd.alk` (this assumes that `krun` is in your system's PATH):
+```
+State:
+
+    x |-> 14
+
 
 ```
-> alk tests\miscelanea\gcd.alk --init "u |-> 42 v |-> 56" --directory alk
+
+By default, `alk` displays the program state. The tool also allows us to send an initial state for a programdirectly in the command line. For instance, let's modify our `gcd.alk` program like this:
+
+```
+// Find the greatest common divisor of two numbers
+gcd(a, b)
+{
+  while (a != b) {
+    if (a > b)  a = a - b;
+    if (b > a) b = b - a;
+  }
+  return a;
+}
+
+x = gcd(u, v);
+```
+
+Note that we've introduced two unkonwn variables, `u` and `v`.
+Now, we use the `--init` option to pass the initial values of `u` and `v`.
+
+```
+> alk gcd.alk  --init "u|-> 42 v |-> 56"
 State:
 
     u |-> 42
     v |-> 56
-```
-
-If `krun` is not in your system's PATH then you can use the `--krun` option.
-By default, `alk` displays the program state. If no initial state is provided the default value of `--init` is `.Map`.
+    x |-> 14
 
 ```
-> alk tests\miscelanea\gcd.alk --directory alk
+
+If no initial state is provided the default value of `--init` is `.Map`, i.e., the empty state. 
+In that case, we get an error:
+```
+> alk gcd.alk
 Program execution failed; the following code got stuck during execution:
 u ~> evaluate HOLE, v wrt a, b to .ValueList ~> bindParams a, b to
       HOLE ~> { (while ( a != b ) { (if ( a > b ) (a = a - b) ;) (if ( b >
@@ -67,13 +109,16 @@ State:
 
     gcd |-> lambda ( a, b ) . { (while ( a != b ) { (if ( a > b ) (a = a -
        b) ;) (if ( b > a ) (b = b - a) ;) }) (return a ;) }
-```
 
-If the program execution fails, as above (since it cannot evaluate `u` for this program), `alk` displays the rest of the program to be executed and the current state.
-If `--stack` is used then `alk` also shows the current stack (if available):
 
 ```
-> alk tests\miscelanea\gcd.alk --directory alk --stack
+
+If the program execution fails, as above (since it cannot evaluate `u` for this program), `alk` displays the rest of the program to be executed and the current state. 
+In such situations it is often needed to inspect the execution stack.
+For this, we use `--stack`, which shows the current stack (if available):
+
+```
+> alk gcd.alk --stack
 Program execution failed; the following code got stuck during execution:
 u ~> evaluate HOLE, v wrt a, b to .ValueList ~> bindParams a, b to
       HOLE ~> { (while ( a != b ) { (if ( a > b ) (a = a - b) ;) (if ( b >
@@ -85,9 +130,10 @@ State:
 
 Stack:
 
-    ListItem ( [ HOLE ; , gcd |-> lambda ( a, b ) . { (while ( a != b ) {
-      (if ( a > b ) (a = a - b) ;) (if ( b > a ) (b = b - a) ;) }) (return
-       a ;) } , a, b ] )
+    ListItem ( [ (x = HOLE) ~> (HOLE ;) , gcd |-> lambda ( a, b ) . { (
+      while ( a != b ) { (if ( a > b ) (a = a - b) ;) (if ( b > a ) (b = b
+       - a) ;) }) (return a ;) } , a, b ] )
+
 ```
 
 Traps
@@ -115,5 +161,5 @@ Remarks
 -------
 
 The `alk.exe` file is generated using the `pp` tool (yes, `alk` is just a `Perl` script). 
-However, if you encounter problems when running it you can install Perl on Windows and then the `Getopt::Long::Descriptive` package using `cpan` (i.e., `cpan -i Getopt::Long::Descriptive`). 
-If the installation is successful, you can run directly the script by typing `perl alk OPTIONS`. For further details, please send an email to `andrei.arusoaie@gmail.com`.
+However, if you encounter problems when running it you can install Perl on Windows (Straberry Perl is preferred), and then the `Getopt::Long::Descriptive` package using `cpan` (i.e., `cpan -i Getopt::Long::Descriptive`). 
+If the installation is successful, you can run directly the script by typing `perl alk` instead of `alk.exe`. For further details, please send an email to `andrei.arusoaie@gmail.com`.
