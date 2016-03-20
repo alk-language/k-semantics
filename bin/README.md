@@ -15,7 +15,7 @@ Note: instructions about using CPAN can be found [here](http://www.cpan.org/modu
 How to use?
 -----------
 
-1. Make sure that Alk is compiled, that is, check if `pathToAlk/alk/alk-kompiled` exists. Otherwise,
+First, make sure that Alk is compiled, that is, check if `pathToAlk/alk/alk-kompiled` exists. Otherwise,
 compile the definition Alk that resides in the `alk` directory of this repo:
 
 ```> kompile alk.k```
