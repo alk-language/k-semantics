@@ -121,8 +121,9 @@ module ALK-SYNTAX
      > Exp "belongsTo" Exp   [strict]
      > "!" Exp               [strict]
      > left:
-       Exp "&&" Exp          [left, strict] 
-     > Exp "||" Exp          [left, strict]
+       Exp "&&" Exp          [left, strict(1)] 
+     > Exp "||" Exp          [left, strict(1)]
+     | Exp "xor" Exp          [left, strict]
 
   syntax Pckg ::= Stmt
 
@@ -150,6 +151,7 @@ module ALK-SYNTAX
      | "if" "(" Exp ")" Stmt "else" Stmt         [avoid, strict]
      | "if" "(" Exp ")" Stmt
      |  "while" "(" Exp ")" Stmt 
+     |  "do" Stmt "while" "(" Exp ")" ";"
      |  "forall" Id "in" Exp  Stmt              [strict(2)]
      |  "for" "(" VarAssign ";" Exp";" VarUpdate ")" Stmt
      | "return" Exp ";"                         [strict]
@@ -292,11 +294,14 @@ module ALK
   rule floor(I:Int) => floor(float(I))
   rule int(I:Int) => I
  
-  rule true && B:Exp => B 
+  rule true  && B:Exp => B 
   rule false && B:Exp => false 
-  rule true || B:Exp => true
+  rule true  || B:Exp => true
   rule false || B:Exp => B
-  rule !true => false
+  rule true  xor false => true
+  rule false xor true  => true
+  rule B xor B => false
+  rule !true  => false
   rule !false => true 
 
   rule random(I:Int) => randomRandom(I)
@@ -474,6 +479,13 @@ module ALK
   rule { V1:ValueList } == { V2:ValueList } => V1 ==Set V2
   rule { V1:ValFldList } == { V2:ValFldList } => V1 ==FldList V2
 
+// Exp != Exp for non-sacalars
+
+  rule [ V1:ValueList ] != [ V2:ValueList ] => notBool (V1 ==List V2)
+  rule < V1:ValueList > != < V2:ValueList > => notBool (V1 ==List V2)
+  rule { V1:ValueList } != { V2:ValueList } => notBool (V1 ==Set V2)
+  rule { V1:ValFldList } != { V2:ValFldList } => notBool (V1 ==FldList V2)
+
 // Exp "=" Exp
 
   // updating simple variables
@@ -504,10 +516,19 @@ module ALK
        <state> St:Map => St[X <- { F -> V .ValFldList}] </state>
      requires isId(X) andBool notBool X in keys(St)
 
+  rule <k> X:Exp.F:Id = V:ExtendedValue ...</k>
+       <state> St:Map  => St[X <- {.ValFldList}] </state>
+     requires isId(X) andBool notBool X in keys(St) andBool notBool isValue(V)
+
   rule <k> X:Exp.F:Id = V:ExtendedValue => X = $updateVal(F, V) ...</k>
        <state> St:Map </state>
 //       requires notBool X in keys(St)
      requires notBool isId(X)
+
+  // updating with iterators
+  context * HOLE = _:ExtendedValue
+  rule * it(X:Id, I:Int) =  V:ExtendedValue => X[I] = V
+
 
   // updating lists components
   context _:Exp.at(HOLE) = _:Exp
@@ -684,6 +705,7 @@ module ALK
   rule if (true) S:Stmt else _ => S
   rule if (false) _ else S:Stmt => S
   rule while (E:Exp) S:Stmt => if (E) { S while (E) S }
+  rule do S:Stmt while (E:Exp); => S ~> if (E) { S while (E) S }
 
   syntax Id ::= "$i" [token]
   rule forall X:Id in V:Value S:Stmt => $i = 0; while ($i < V.$size()) { X = V[$i]; S $i = $i + 1; }  
@@ -875,7 +897,9 @@ module ALK
   rule (((F:Id -> V:Value) Vs:ValFldList).$update(F, $removeAllEqToVal(V'))) => ((F -> V.$removeAllEqTo(V')) Vs)
   rule (((F:Id -> V:Value) Vs:ValFldList).$update(F':Id, V')) => ((F -> V) (Vs.$update(F', V')))
     requires F =/=K F'
-  rule .ValFldList.$update(F':Id, V') => F' -> V' .ValFldList
+  rule .ValFldList.$update(F:Id, V) => F -> V .ValFldList
+
+  rule .ValFldList.$update(F:Id, $updateVal(X:Id, V)) => F -> {.ValFldList }.$update(X, V) .ValFldList
 
   // structures
   rule { Vs:ValFldList }.$update(F, V:ExtendedValue) => { Vs.$update(F, V) }
@@ -948,9 +972,10 @@ module ALK
   rule V:Value $in [ Vs:ValueList ] => V $in Vs
   rule V:Value $in < Vs:ValueList > => V $in Vs
   rule V:Value $in (V':Value, _:ValueList) => true 
-    requires V ==K V'  // TODO: V ==Value V'
+    requires V ==Val V'  
   rule V:Value $in (V':Value, Vs:ValueList) => V:Value $in Vs
-    requires V =/=K V'     // TODO: notBool V ==Value V'
+//    requires notBool (V ==Val V')
+    [owise]
   rule V:Value $in .ValueList => false
 
 
@@ -1015,12 +1040,13 @@ module ALK
        Vs1 $setminus Vs2 ==K .ValueList andBool
        Vs2 $setminus Vs1 ==K .ValueList
 
-  syntax Bool ::= Value "==Val" Value
-  rule V1:Int ==Val V2:Int => V1 ==Int V2
-  rule V1:Bool ==Val V2:Bool => V1 ==Bool V2
-  rule V1:Float ==Val V2:Float => V1 ==Float V2
-  rule V1:String ==Val V2:String => V1 ==String V2
+  syntax Bool ::= Value "==Val" Value [function]
+  rule (V1:Int ==Val V2:Int) => (V1 ==Int V2)
+  rule (V1:Bool ==Val V2:Bool) => (V1 ==Bool V2)
+  rule (V1:Float ==Val V2:Float) => (V1 ==Float V2)
+  rule (V1:String ==Val V2:String) => (V1 ==String V2)
   rule { V1:ValueList } ==Val { V2:ValueList } => V1 ==Set V2
+  rule { V1:ValFldList } ==Val { V2:ValFldList } => V1 ==FldList V2
   rule [ V1:ValueList ] ==Val [ V2:ValueList ] => V1 ==List V2 
   rule < V1:ValueList > ==Val < V2:ValueList > => V1 ==List V2 
 
