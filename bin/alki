@@ -1,0 +1,81 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Getopt::Long::Descriptive;
+use Cwd 'abs_path';
+use File::Spec;
+
+
+# default path to alk-kompiled 
+
+my $kompiled = File::Spec->catdir(
+    abs_path($0),
+    File::Spec->updir(),
+    File::Spec->updir(),
+    "alk");
+
+# declare options and generate the usage message
+my ($opt, $usage) = describe_options(
+    '%c [OPTIONS]... [file.alk]',
+    [ 'init=s',      "the initial Alk state", { default => ".Map"  } ],
+    [ 'stack',       "show stack content",    { default => 0 } ],
+    [ 'krun=s',      "path to krun executable",          { default => "krun" } ],
+    [ 'directory=s', "path to directory where alk-kompiled resides", 
+                                              { default => $kompiled } ],
+    [],
+    [ 'help|h',        "print usage message and exit" ],
+  );
+
+
+# exit if no file provided
+if (scalar @ARGV < 1) {
+    if ($opt->help) {
+	print "Execute an Alk program using the K definition of the language.\n";
+	print "Usage: $usage";
+	exit(0); # enit normally
+    } else {
+	print "Please provide an Alk file.\nUsage: $usage";
+	exit 1;
+    }
+}
+
+# get the Alk program file
+my $file  = shift @ARGV;
+
+# collect options data
+my $krun   = $opt->krun;
+my $init   = $opt->init;
+my $stack  = $opt->stack;
+my $alkdir = $opt->directory;
+
+# execute krun on file with 
+local $_ = `$krun $file -cINIT="$init" --directory "$alkdir"`;
+
+
+# get content of <k>, <state>, and <stack> (eventually)
+my ($k, $state, $stk) = ("", "", "");
+if (/\<k\>(.*?)\<\/k\>.*?\<state\>(.*?)\<\/state\>.*?\<stack\>(.*?)\<\/stack\>/s) {
+    ($k, $state, $stk) = ($1, $2, $3);
+    $stk = $stack ? "Stack:\n$stk" : "";
+} elsif (/\<k\>(.*?)\<\/k\>.*?\<state\>(.*?)\<\/state\>/s) {
+    ($k, $state) = ($1, $2);
+    $stk = $stack ? "Cannot retrieve stack content.\n" : "";
+} else {
+    print "Program execution failed.\n";
+    exit 1;
+}
+
+
+# trim <k>'s content
+$k =~ s/^\s+|\s+$//g;
+
+# main
+if ($k eq ".K") {
+    print "State:\n$state\n$stk";
+} elsif (($k eq "success ;") or ($k eq "failure ;")) {
+    print "Program status: $k\nState:\n$state\n$stk";	
+} else {
+    print "Program execution failed; the following code got stuck during execution:\n$k\nState:\n$state\n$stk";
+}
