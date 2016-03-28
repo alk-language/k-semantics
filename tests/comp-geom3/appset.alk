@@ -1,0 +1,86 @@
+sign2xTriArea(A, B, C) {
+  d1 = B.y * A.x + C.y * B.x + A.y * C.x;
+  d2 = C.x * B.y + B.x * A.y + A.x * C.y;
+  return d1 - d2;
+}
+
+/*
+  compare distance from P to AB with the distance from Q to AB
+  returns:
+   -1 if dist(P, AB) < dist(Q, AB)
+   0  if dist(P, AB) = dist(Q, AB)
+   +1 if dist(P, AB) > dist(Q, AB)
+*/
+cmpDist(A, B, P, Q) {
+  dpab = sign2xTriArea(A, B, P);
+  if (dpab < 0) dpab = 0 - dpab;
+  dqab = sign2xTriArea(A, B, Q);
+  if (dqab < 0) dqab = 0 - dqab;
+  if (dpab < dqab) return -1;
+  if (dpab > dqab) return +1;
+  return 0;
+}
+
+/*
+  tests if I is the farthest from AB, where
+  I = *i, A = *a, B = *b
+*/
+isFarthest(a, b, i) {
+  return cmpDist(*a, *b, *i, *(i -% 1)) >= 0 &&
+         cmpDist(*a, *b, *i, *(i +% 1)) >= 0;
+}
+
+addPair(out S, a, b) {
+  PP[0] = *a;
+  PP[1] = *b;
+  if ( ! (PP belongsTo S) ) 
+    S.pushBack(PP);
+}
+
+/*
+  @input: un poligon convex L 
+  @output: multimea varfurilor antipodale APP
+  Assumption: no three verices of L are colinear 
+*/
+antipodalPairs(L) {
+  APPSet = emptySet;
+  k = L.first();  // A = *(k -% 1), B = *k
+  i = k + 1;
+  while ( ! isFarthest(k -% 1, k, i))
+    i = i + 1;
+  // P = *i is the first farthest from AB
+  p = i;
+  do {
+   // A = *(k -% 1), B = *k
+   // P = *i is the first farthest from AB
+    while (! isFarthest(k, k +% 1, i)) {
+      // (B, *i) is antipodal pair
+      addPair(APPSet, k, i);
+      i = i +% 1;
+    }
+    // P' = *i is the first farthest from the next edge BC, where C = *(i+1)
+    if (isFarthest(k, k +% 1, i +% 1)) {
+      // (B, *i) is antipodal pair
+      addPair(APPSet, k, i);
+      // (B, *(i+1)) is antipodal pair
+      addPair(APPSet, k, i +% 1);
+      i = i +% 1;
+    }
+   // Q = *i is the last farthest from AB and the last antipodal to B
+    addPair(APPSet, k, i);
+    k = k + 1;
+   // next edge BC becomes AB, A = *(k -% 1), B = *k
+  } while (k != L.end());
+  return APPSet;
+}
+
+
+LL = < { x -> 1 y -> 1 },
+      { x -> 2 y -> 1 },
+      { x -> 3 y -> 2 },
+      { x -> 3 y -> 4 },
+      { x -> 2 y -> 5 },
+      { x -> 0 y -> 3 } >;
+
+PS = antipodalPairs(LL);
+

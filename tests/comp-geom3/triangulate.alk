@@ -1,0 +1,147 @@
+sign2xTriArea(A, B, C) {
+  d1 = B.y * A.x + C.y * B.x + A.y * C.x;
+  d2 = C.x * B.y + B.x * A.y + A.x * C.y;
+  return d1 - d2;
+}
+
+ccw(A, B, C) 
+/*
+  turn left = +1;
+  turn right = -1;
+  colinear = 0;
+*/
+{
+  ax2 = sign2xTriArea(A, B, C);
+  if (ax2 > 0.0) return 1;
+  if (ax2 < 0.0) return -1;
+  return 0;
+}
+
+/*
+  tests if C is between A and B
+*/
+between(A, B, C) {
+  if (ccw(A, B, C) != 0) return false;
+  if (A.x != B.x)
+    return (A.x <= C.x && C.x <= B.x) ||
+           (B.x <= C.x && C.x <= A.x);
+  else
+    return (A.y <= C.y && C.y <= B.y) ||
+           (B.y <= C.y && C.y <= A.y);
+}  
+
+/*
+  proper intersection between the segments AB and CD
+*/
+isPropIntSeg(A, B , C, D) {
+  if (ccw(A, B, C) == 0 ||
+      ccw(A, B, D) == 0 ||
+      ccw(C, D, A) == 0 ||
+      ccw(C, D, B) == 0 )
+    return false;
+  else
+    return (ccw(A, B, C) == 1 xor ccw(A, B, D) == 1) &&
+           (ccw(C, D, A) == 1 xor ccw(C, D, B) == 1);
+}
+
+isIntSeg(A, B , C, D) {
+  if (isPropIntSeg(A, B , C, D)) 
+    return true;
+  else if (between(A, B, C) ||
+      between(A, B, D) ||
+      between(C, D, A) ||
+      between(C, D, B))
+    return true;
+  else
+    return false;
+}
+
+
+/*
+  tests if AB is a internal or external diagonal of the poligon L,
+  where A = *a, B = *b, and a, b are iterators associated to L
+*/
+isDiagKind(a, b, L) {
+  A = *a;  B = *b;
+  for (p = L.first(); p != L.end(); ++ p) {
+    q = p +% 1;
+    if (( *p  == A && *q == B) ||
+        ( *p  == B && *q == A))
+      return false;
+    if ( *p != A && *p != B &&
+         *q != A && *q != B &&
+         isIntSeg(A, B, *p, *q))
+      return false;
+  }
+  return true;
+} 
+
+/*
+  tests if A is interior to the cone defined by the vertex *p of the poligon L
+  (p is a iterator associated to L)
+*/
+inCone(p, A) {
+  P = *p;
+  Pprev = *(p -% 1);
+  Pnext = *(p +% 1);
+  if (ccw(P, Pnext, Pprev) == 1) // P is a convex vertex
+    return ccw(P, A, Pprev) + ccw(A, P, Pnext) == 2;
+  else // P is a concav (reflex) vertex
+    return ccw(P, A, Pnext) + ccw(A, P, Pprev) <= 0;
+}
+
+/*
+  tests if AB is a diagonal in L, where A = *a, B = *b
+*/
+isDiag(a, b, L) {
+  return isDiagKind(a, b, L) &&
+         inCone(a, *b) &&
+         inCone(b, *a);
+}
+
+/* 
+  set the ear status for each vertex in L
+*/
+setEarStatus(out L) {
+  for (p = L.first(); p != L.end(); ++ p)
+    *p.ear = isDiag(p -% 1, p +% 1, L);
+}
+
+/*
+  computes  the set of diagonals that triangulate L
+*/
+
+triangulate(L, out D) {
+  D = emptySet;
+  setEarStatus(L);
+  while(L.size() > 3) {
+    // search for an ear
+    for (p = L.first(); !(*p.ear); ++p) {} //always terminate since L has at least an ear
+    // add the diagonal
+    d.A.x = *(p -% 1).x;  d.A.y = *(p -% 1).y;
+    d.B.x = *(p +% 1).x;  d.B.y = *(p +% 1).y;
+    D.pushBack(d);
+    // reset ear status for p-1 and p+1
+    *(p -% 1).ear = isDiag(p -% 2, p +% 1, L);
+    *(p +% 1).ear = isDiag(p -% 1, p +% 2, L);
+    // remove *p
+    p->delete();
+  }
+}
+
+test(out D) {
+  L = < {x -> 1.0 y -> 1.0},
+        {x -> 2.0 y -> 2.0},
+        {x -> 3.0 y -> 1.0},
+        {x -> 4.0 y -> 2.0},
+        {x -> 5.0 y -> 1.0},
+        {x -> 5.0 y -> 4.0},
+        {x -> 3.0 y -> 5.0},
+        {x -> 1.0 y -> 4.0} >;
+
+  triangulate(L, D);
+}
+
+test(D);
+
+

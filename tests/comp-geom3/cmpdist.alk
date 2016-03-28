@@ -1,0 +1,31 @@
+sign2xTriArea(A, B, C) {
+  d1 = B.y * A.x + C.y * B.x + A.y * C.x;
+  d2 = C.x * B.y + B.x * A.y + A.x * C.y;
+  return d1 - d2;
+}
+
+/*
+  compare distance from P to AB with the distance from Q to AB
+  returns:
+   -1 if dist(P, AB) < dist(Q, AB)
+   0  if dist(P, AB) = dist(Q, AB)
+   +1 if dist(P, AB) > dist(Q, AB)
+*/
+cmpdist(A, B, P, Q) {
+  dpab = sign2xTriArea(A, B, P);
+  if (dpab < 0) dpab = 0 - dpab;
+  dqab = sign2xTriArea(A, B, Q);
+  if (dqab < 0) dqab = 0 - dqab;
+  if (dpab < dqab) return -1;
+  if (dpab > dqab) return +1;
+  return 0;
+}
+
+A = { x -> 1 y -> 1 };
+B = { x -> 3 y -> 3 };
+P1 = { x -> 2 y -> 5 };
+Q1 = { x -> 4 y -> 20 };
+Q2 = { x -> 5 y -> 4 };
+
+t1 = cmpdist(A, B, P1, Q1);
+t2 = cmpdist(A, B, P1, Q2);
