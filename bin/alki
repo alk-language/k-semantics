@@ -40,7 +40,7 @@ my ($opt, $usage) = describe_options(
     '%c [OPTIONS]... [file.alk]',
     [ 'init=s',      "the initial Alk state",   { default => ".Map"  } ],
     [ 'stack',       "show stack content",      { default => 0 } ],
-    [ 'krun=s',      "path to krun executable", { default => "krun" } ],
+    [ 'krun=s',      "path to krun executable", { default => File::Spec->catdir($kbin, "krun") } ],
     [ 'directory=s', "path to directory where alk-kompiled resides", 
                                                 { default => $kompiled } ],
     [],
@@ -53,10 +53,10 @@ if (scalar @ARGV < 1) {
     if ($opt->help) {
 	print "Execute an Alk program using the K definition of the language.\n";
 	print "Usage: $usage";
-	exit(0); # enit normally
+	exit(0); # exit normally
     } else {
 	print "Please provide an Alk file.\nUsage: $usage";
-	exit 1;
+	exit 1; # exit with error code 1
     }
 }
 
@@ -68,6 +68,16 @@ my $krun   = $opt->krun;
 my $init   = $opt->init;
 my $stack  = $opt->stack;
 my $alkdir = $opt->directory;
+
+# kompile alk.k if not compiled
+my $alk_kompiled = File::Spec->catdir($alkdir, "alk-kompiled");
+if (!(-e $alk_kompiled)) {
+    print "Could not detect a compiled version of Alk.\nTrying to compile. Please wait...\n";
+    my $kompile = File::Spec->catdir($kbin, "kompile");
+    my $alk = File::Spec->catdir($alkdir, "alk.k");
+    local $_ = `$kompile $alk`;
+    print "Compilation complete. Resume...\n";
+}
 
 # execute krun on file with 
 local $_ = `$krun $file -cINIT="$init" --directory "$alkdir"`;
