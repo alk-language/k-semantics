@@ -33,7 +33,9 @@ isFarthest(a, b, i) {
 addPair(out S, a, b) {
   PP[0] = *a;
   PP[1] = *b;
-  if ( ! (PP belongsTo S) ) 
+  PQ[0] = *b;
+  PQ[1] = *a;
+  if ( ! (PP belongsTo S) &&  ! (PQ belongsTo S)) 
     S.pushBack(PP);
 }
 
@@ -58,16 +60,14 @@ antipodalPairs(L) {
       addPair(APPSet, k, i);
       i = i +% 1;
     }
-    // P' = *i is the first farthest from the next edge BC, where C = *(i+1)
+    // P' = *i is the first farthest from the next edge BC, where C = *(k+1)
     if (isFarthest(k, k +% 1, i +% 1)) {
       // (B, *i) is antipodal pair
       addPair(APPSet, k, i);
-      // (B, *(i+1)) is antipodal pair
-      addPair(APPSet, k, i +% 1);
       i = i +% 1;
     }
-   // Q = *i is the last farthest from AB and the last antipodal to B
-    addPair(APPSet, k, i);
+    else addPair(APPSet, k, i);
+    // Q = *i is the last farthest from AB and the last antipodal to B
     k = k + 1;
    // next edge BC became AB, A = *(k -% 1), B = *k
   } while (k != L.end());

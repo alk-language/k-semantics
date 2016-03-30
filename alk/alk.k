@@ -474,15 +474,15 @@ module ALK
 
 // Exp == Exp for non-sacalars
 
-  rule [ V1:ValueList ] == [ V2:ValueList ] => V1 ==List V2
-  rule < V1:ValueList > == < V2:ValueList > => V1 ==List V2
+  rule [ V1:ValueList ] == [ V2:ValueList ] => V1 ==ValList V2
+  rule < V1:ValueList > == < V2:ValueList > => V1 ==ValList V2
   rule { V1:ValueList } == { V2:ValueList } => V1 ==Set V2
   rule { V1:ValFldList } == { V2:ValFldList } => V1 ==FldList V2
 
 // Exp != Exp for non-sacalars
 
-  rule [ V1:ValueList ] != [ V2:ValueList ] => notBool (V1 ==List V2)
-  rule < V1:ValueList > != < V2:ValueList > => notBool (V1 ==List V2)
+  rule [ V1:ValueList ] != [ V2:ValueList ] => notBool (V1 ==ValList V2)
+  rule < V1:ValueList > != < V2:ValueList > => notBool (V1 ==ValList V2)
   rule { V1:ValueList } != { V2:ValueList } => notBool (V1 ==Set V2)
   rule { V1:ValFldList } != { V2:ValFldList } => notBool (V1 ==FldList V2)
 
@@ -974,8 +974,8 @@ module ALK
   rule V:Value $in (V':Value, _:ValueList) => true 
     requires V ==Val V'  
   rule V:Value $in (V':Value, Vs:ValueList) => V:Value $in Vs
-//    requires notBool (V ==Val V')
-    [owise]
+    requires notBool (V ==Val V')
+
   rule V:Value $in .ValueList => false
 
 
@@ -1027,12 +1027,12 @@ module ALK
   // the output params are ignored
   rule params2Set(out X:Id, Xs:Params)  => params2Set(Xs)
 
-  syntax Bool ::= ValueList "==List" ValueList [function]
-  rule (V1:Value, Vs1:ValueList) ==List (V2:Value, Vs2:ValueList)
+  syntax Bool ::= ValueList "==ValList" ValueList [function]
+  rule (V1:Value, Vs1:ValueList) ==ValList (V2:Value, Vs2:ValueList)
        =>
-       V1 ==Val V2 andBool Vs1 ==List Vs2
-  rule .ValueList ==List .ValueList => true
-  rule Vs1:ValueList ==List Vs2:ValueList => false [owise]
+       V1 ==Val V2 andBool Vs1 ==ValList Vs2
+  rule .ValueList ==ValList .ValueList => true
+  rule Vs1:ValueList ==ValList Vs2:ValueList => false [owise]
 
   syntax Bool ::= ValueList "==Set" ValueList [function]
   rule Vs1:ValueList ==Set Vs2:ValueList 
@@ -1047,8 +1047,8 @@ module ALK
   rule (V1:String ==Val V2:String) => (V1 ==String V2)
   rule { V1:ValueList } ==Val { V2:ValueList } => V1 ==Set V2
   rule { V1:ValFldList } ==Val { V2:ValFldList } => V1 ==FldList V2
-  rule [ V1:ValueList ] ==Val [ V2:ValueList ] => V1 ==List V2 
-  rule < V1:ValueList > ==Val < V2:ValueList > => V1 ==List V2 
+  rule [ V1:ValueList ] ==Val [ V2:ValueList ] => V1 ==ValList V2 
+  rule < V1:ValueList > ==Val < V2:ValueList > => V1 ==ValList V2 
 
   syntax Bool ::= ValFldList "==FldList" ValFldList [function]
   rule (X1:Id -> V1:Value Vs1:ValFldList) ==FldList (X2:Id -> V2:Value Vs2:ValFldList)

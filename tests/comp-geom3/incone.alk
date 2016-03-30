@@ -29,7 +29,7 @@ inCone(p, A) {
   if (ccw(P, Pnext, Pprev) == 1) // P is a convex vertex
     return ccw(P, A, Pprev) + ccw(A, P, Pnext) == 2;
   else // P is a concav (reflex) vertex
-    return ccw(P, A, Pnext) + ccw(A, P, Pprev) <= 0;
+    return ccw(P, A, Pnext) + ccw(A, P, Pprev) != 0;
 }
 
 test(out t) {
