@@ -1,0 +1,16 @@
+/*
+  @input: a positive integer n
+  @output: x = [log n] + 1
+*/
+
+x = 0;
+while (n > 0) {
+  n = n / 2;
+  x = x + 1;
+}
+
+/*
+  Example of command line:
+  krun programs/log.alk -cINIT="n |-> 23"
+
+*/
