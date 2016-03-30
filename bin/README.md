@@ -8,23 +8,35 @@ Prerequisites:
   It is highly recommended to put the paths to K's binaries in your system's `PATH` environment variable.
 
 * Perl and CPAN - for Linux/Unix/MacOS users.
-* The `Getopt::Long::Descriptive` package - for Linux/Unix/MacOS users. It can be installed in command line by typing `cpan -i Getopt::Long::Descriptive` (warning: you may need `sudo` to do this). 
+* The `Getopt::Long::Descriptive` package - for Linux/Unix/MacOS users. It can be installed in command line by typing `cpan -i Getopt::Long::Descriptive` (warning: you may need `sudo` for this). 
 
 Note: instructions about using CPAN can be found [here](http://www.cpan.org/modules/INSTALL.html).
 
 How to use?
 -----------
 
-First, make sure that Alk is compiled, that is, check if `pathToAlk/alk/alk-kompiled` exists. Otherwise,
-compile the K definition of Alk that resides in the `alk` directory of this repo:
+1. Edit the `alki.config` file located in the `bin` directory. You will notice that the default content of this file is
 
-```> kompile alk.k```
+```
+ALK=
+K=
+```
 
-or 
+It is expected that the user edits `alki.config` such that:
 
-```> pathToK/bin/kompile alk.k```
+* `ALK=`the *absolute* path to the directory which contains `alk.k`, and
+* `K=` the *absolute* path to the `bin` directory of the K distribution
 
-This will generate `alk-kompiled` in the same directory.
+For example, if `K` is stored at `/home/user/work/k` and `Alk` is stored at `/home/user/work/alk-language/k-semantics` then the content of the `alki.config` file should be:
+
+```
+ALK=/home/user/work/alk-language/k-semantics/alk
+K=/home/user/work/k/bin
+```
+
+Technically, the folder `/home/user/work/alk-language/k-semantics/alk` should contain a file named `alk.k`, and the folder `/home/user/work/k/bin` should contain at least two files: `kompile` and `krun`. 
+
+Note that adding the right paths to `alki.config` is *mandatory*. Otherwise, the tool will probably fail to execute programs. 
 
 2. Add `bin` (the folder where this README file resides) into your system's PATH.
 
@@ -59,16 +71,29 @@ gcd(a, b)
 x = gcd(42,56);
 ```
 
-Now, we can simply run `gcd.alk` (this assumes that `krun` is in your system's PATH):
+Now, we can simply run `gcd.alk`:
 ```
+$ alki gcd.alk 
+Could not detect a compiled version of Alk.
+Trying to compile. Please wait...
+Compilation complete. Resume...
 State:
 
     x |-> 14
 
+```
+
+By default, `alki` displays the program state. However, when running it for the first time, the tool automatically compiles the `K` definition of `Alk`. This happens only once. If you run the same command again, you'll get only:
+
+```
+$ alki gcd.alk 
+State:
+
+    x |-> 14
 
 ```
 
-By default, `alki` displays the program state. The tool also allows us to send an initial state for a program directly in the command line. For instance, let's modify our `gcd.alk` program like this:
+The tool also allows us to send an initial state for a program directly in the command line. For instance, let's modify our `gcd.alk` program like this:
 
 ```
 // Find the greatest common divisor of two numbers
@@ -138,16 +163,7 @@ Stack:
 
 Traps
 -----
-* If you ever get this error:
-```
-> alki tests\miscelanea\gcd.alk
-'krun' is not recognized as an internal or external command,
-operable program or batch file.
-Program execution failed.
-```
-then `alki` is not able to find the path to `krun`. In this case, you can either edit the `PATH` environment variable or use the `--krun` when running `alki`.
-
-* Also, if you get this error:
+If you get this error:
 ```
 > alki tests/miscelanea/gcd.alk --directory alk 
 [Error] Critical: Kompiled definition is out of date with the latest version of
