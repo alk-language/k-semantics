@@ -5,25 +5,44 @@ use warnings;
 
 use Getopt::Long::Descriptive;
 use Cwd 'abs_path';
+use Cwd 'getcwd';
 use File::Spec;
+use File::Basename;
 
+# initialize locations: alk-kompiled, k 
+my $kompiled = "";
+my $kbin = "";
 
-# default path to alk-kompiled 
+# read config file and 
+my $filename = File::Spec->catdir(dirname(abs_path($0)),  "alki.config");
+open(my $fh, '<:encoding(UTF-8)', $filename)
+  or die "Could not open file '$filename' $!";
+while (my $row = <$fh>) {
+  chomp $row;
+  $kbin = $1 if ($row =~ m/K=(.*?)$/);
+  $kompiled = $1 if ($row =~ m/ALK=(.*?)$/);
+#   print "$row\n";
+}
 
-my $kompiled = File::Spec->catdir(
-    abs_path($0),
-    File::Spec->updir(),
-    File::Spec->updir(),
-    "alk");
+# throw errors if alki.config contains bad settings
+if (! (-e $kompiled)) {
+    print "Folder \"$kompiled\" not found! Make sure you've specified\nthe right path to ALK in settings at:\n  '$filename'.\n";
+    exit(1);
+}
+if (! (-e $kbin)) {
+    print "Folder \"$kbin\" not found! Make sure you've specified\nthe right path for K binaries in settings at:\n  '$filename'.\n";
+    exit(1);
+}
+
 
 # declare options and generate the usage message
 my ($opt, $usage) = describe_options(
     '%c [OPTIONS]... [file.alk]',
-    [ 'init=s',      "the initial Alk state", { default => ".Map"  } ],
-    [ 'stack',       "show stack content",    { default => 0 } ],
-    [ 'krun=s',      "path to krun executable",          { default => "krun" } ],
+    [ 'init=s',      "the initial Alk state",   { default => ".Map"  } ],
+    [ 'stack',       "show stack content",      { default => 0 } ],
+    [ 'krun=s',      "path to krun executable", { default => File::Spec->catdir($kbin, "krun") } ],
     [ 'directory=s', "path to directory where alk-kompiled resides", 
-                                              { default => $kompiled } ],
+                                                { default => $kompiled } ],
     [],
     [ 'help|h',        "print usage message and exit" ],
   );
@@ -34,10 +53,10 @@ if (scalar @ARGV < 1) {
     if ($opt->help) {
 	print "Execute an Alk program using the K definition of the language.\n";
 	print "Usage: $usage";
-	exit(0); # enit normally
+	exit(0); # exit normally
     } else {
 	print "Please provide an Alk file.\nUsage: $usage";
-	exit 1;
+	exit 1; # exit with error code 1
     }
 }
 
@@ -49,6 +68,16 @@ my $krun   = $opt->krun;
 my $init   = $opt->init;
 my $stack  = $opt->stack;
 my $alkdir = $opt->directory;
+
+# kompile alk.k if not compiled
+my $alk_kompiled = File::Spec->catdir($alkdir, "alk-kompiled");
+if (!(-e $alk_kompiled)) {
+    print "Could not detect a compiled version of Alk.\nTrying to compile. Please wait...\n";
+    my $kompile = File::Spec->catdir($kbin, "kompile");
+    my $alk = File::Spec->catdir($alkdir, "alk.k");
+    local $_ = `$kompile $alk`;
+    print "Compilation complete. Resume...\n";
+}
 
 # execute krun on file with 
 local $_ = `$krun $file -cINIT="$init" --directory "$alkdir"`;
