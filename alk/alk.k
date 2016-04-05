@@ -1,6 +1,6 @@
 // TODO: add the copyright notice
 // TODO: change the syntax for structures: x : v instead of x -> v
-//require "domains.k"
+require "domains.k"
 require "../packages/compgeom.k"
 
 module ALK-SYNTAX 
@@ -117,7 +117,7 @@ module ALK-SYNTAX
        Exp "U" Exp           [left, strict]
      | Exp "^" Exp           [left, strict]
      | Exp "\\" Exp          [left, strict]
-     > Exp OpRel Exp         [noassoc, strict(1,3)]
+     > Exp OpRel Exp         [noassoc, strict(1,3), avoid]
      > Exp "belongsTo" Exp   [strict]
      > "!" Exp               [strict]
      > left:
@@ -165,6 +165,7 @@ endmodule
 
 module ALK
   imports ALK-SYNTAX
+  imports FLOAT
 
   syntax ExtendedValue ::=
        Value 
@@ -187,8 +188,8 @@ module ALK
   configuration
     <k> $PGM:Stmt </k>
     <state> $INIT:Map </state> 
-    <stack> .List </stack>
-    <outpar> .List </outpar>
+    <stack multiplicity="*"> .List </stack>
+    <outpar multiplicity="*"> .List </outpar>
 //<debug> .List </debug>
 
 /* Expression  evaluation */
@@ -346,14 +347,14 @@ module ALK
 
   rule <k> success; </k>
        <state> Sigma:Map => $cleanup(Sigma) </state>
-       (<stack> _ </stack> => .Bag)
-       (<outpar> _ </outpar> => .Bag)
+       //(<stack> _ </stack> => .Bag)
+       //(<outpar> _ </outpar> => .Bag)
     requires $isNotClean(Sigma)
 
   rule <k> failure; </k>
        <state> Sigma:Map => $cleanup(Sigma) </state>
-       (<stack> _ </stack> => .Bag)
-       (<outpar> _ </outpar> => .Bag)
+       //(<stack> _ </stack> => .Bag)
+       //(<outpar> _ </outpar> => .Bag)
     requires $isNotClean(Sigma)
 
   rule <k> .K </k>
@@ -728,20 +729,21 @@ module ALK
   - then the body of the function is executed
 */
 
-  rule  E:Exp(Es:Exps); => E(Es) ~> HOLE:Value; // [heat]
-  rule V:Value ~> HOLE:Value; => V;             //[cool]                                                            
+  syntax KBott ::= "heatPlaceholder" // TODO (dlucanu): fix this
+  rule  E:Exp(Es:Exps); => E(Es) ~> heatPlaceholder // [heat]
+  rule V:Value ~> heatPlaceholder => V;             //[cool]                                                            
 
   syntax KItem ::= "[" K "," Map "," Params "]"
-  rule <k> (lambda(Ps:Params).St:Stmt(Es:Exps) ~> K:K)
+  /*rule <k> (lambda(Ps:Params).St:Stmt(Es:Exps) ~> K:K)
            =>
            (evaluate Es wrt Ps to .ValueList ~> 
-           bindParams Ps to HOLE ~> St ~> 
+           bindParams Ps to heatPlaceholder ~> St ~> 
            return 0;) 
        </k> 
        <state> Sigma:Map </state>
        <stack> .List => ListItem([K, Sigma, Ps]) ...</stack>
        <outpar> .List => ListItem(.Bindings) ...</outpar>
-
+*/
   syntax Binding ::= Id "->" Id
   syntax Bindings ::= List{Binding, ";"}  
 
@@ -759,7 +761,7 @@ module ALK
   rule <k> evaluate (A:Id, Es:Exps => Es) wrt (out Y:Id, Ps:Params => Ps) to (Vs:ValueList => $append(outArg(A, 0), Vs)) ...</k>
        <state> Sigma:Map </state>
     requires notBool A in keys(Sigma)
-  rule (evaluate .Exps wrt .Params to Vs ~> bindParams Ps to HOLE) => bindParams Ps to Vs
+  rule (evaluate .Exps wrt .Params to Vs ~> bindParams Ps to heatPlaceholder) => bindParams Ps to Vs
 
 // binding the formal parameters to their  corresponding values
   syntax Values ::= "bindParams" Params "to" Exps 
@@ -814,16 +816,16 @@ module ALK
   syntax Map ::= getGlobals(List) [function]
   rule getGlobals(.List) => .Map
   rule getGlobals(ListItem([_, G:Map, _]) .List) => G
-  rule getGlobals(ListItem([_,_,_]) Stack:List) => getGlobals(Stack)
+  rule getGlobals(ListItem([_,_::Map,_]) Stack:List) => getGlobals(Stack)
     requires Stack =/=K .List
 
 
 // final state
-
+/*
   rule <k> .K </k>
        (<stack> _ </stack> => .Bag)
        (<outpar> _ </outpar> => .Bag)  
-
+*/
 /*
    \section{Internal Operations}
 */
@@ -1035,6 +1037,7 @@ module ALK
   rule Vs1:ValueList ==ValList Vs2:ValueList => false [owise]
 
   syntax Bool ::= ValueList "==Set" ValueList [function]
+  syntax priorities _$setminus_ > _andBool_
   rule Vs1:ValueList ==Set Vs2:ValueList 
        =>
        Vs1 $setminus Vs2 ==K .ValueList andBool
