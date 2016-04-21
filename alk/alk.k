@@ -304,6 +304,16 @@ module ALK
   rule !true  => false
   rule !false => true 
 
+  rule S1 + S2 => S1 +String S2
+
+  rule S1:String != S2:String => S1 =/=String S2 
+  rule S1:String == S2:String => S1 ==String S2 
+  rule S1:String < S2:String => S1 <String S2 
+  rule S1:String <= S2:String => S1 <=String S2 
+  rule S1:String >= S2:String => S1 >=String S2
+  rule S1:String > S2:String => S1 >String S2
+
+
   rule random(I:Int) => randomRandom(I)
     [transition]
 
