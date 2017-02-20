@@ -7,8 +7,8 @@ Prerequisites:
 * The K framework - use the version of K indicated [here](https://github.com/alk-language/k-semantics).
   It is highly recommended to put the paths to K's binaries in your system's `PATH` environment variable.
 
-* Perl and CPAN - for Linux/Unix/MacOS users.
-* The `Getopt::Long::Descriptive` package - for Linux/Unix/MacOS users. It can be installed in command line by typing `cpan -i Getopt::Long::Descriptive` (warning: you may need `sudo` for this). 
+* Perl and CPAN - for all operating systems.
+* The `Getopt::Long::Descriptive` packages. It can be installed in command line by typing `cpan -i Getopt::Long::Descriptive` (warning: you may need `sudo` for this on Linux/MacOS). 
 
 Note: instructions about using CPAN can be found [here](http://www.cpan.org/modules/INSTALL.html).
 
