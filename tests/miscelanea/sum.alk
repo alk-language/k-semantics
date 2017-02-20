@@ -1,0 +1,15 @@
+/*
+  @input: a positive integer n
+  @output: s = 1 + 2 + ... + n
+*/
+
+s = 0 ;
+while (n > 0) {
+  s = s + n;
+  n = n - 1;
+}
+
+/*
+  Example of command line:
+  krun programs/sum.alk -cINIT="n |-> 23"
+*/
