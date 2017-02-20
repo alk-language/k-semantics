@@ -38,11 +38,13 @@ if (! (-e $kbin)) {
 # declare options and generate the usage message
 my ($opt, $usage) = describe_options(
     '%c [OPTIONS]... [file.alk]',
-    [ 'init=s',      "the initial Alk state",   { default => ".Map"  } ],
-    [ 'stack',       "show stack content",      { default => 0 } ],
-    [ 'krun=s',      "path to krun executable", { default => File::Spec->catdir($kbin, "krun") } ],
+    [ 'init=s',      "the initial Alk state",     { default => ".Map"  } ],
+    [ 'search',      "enable search; works only with transition enabled",             
+	                                          { default => 0 } ],
+    [ 'stack',       "show stack content if any", { default => 0 } ],
+    [ 'krun=s',      "path to krun executable",   { default => File::Spec->catdir($kbin, "krun") } ],
     [ 'directory=s', "path to directory where alk-kompiled resides", 
-                                                { default => $kompiled } ],
+                                                  { default => $kompiled } ],
     [],
     [ 'help|h',        "print usage message and exit" ],
   );
@@ -68,6 +70,7 @@ my $krun   = $opt->krun;
 my $init   = $opt->init;
 my $stack  = $opt->stack;
 my $alkdir = $opt->directory;
+my $search = $opt->search;
 
 # kompile alk.k if not compiled
 my $alk_kompiled = File::Spec->catdir($alkdir, "alk-kompiled");
@@ -75,36 +78,64 @@ if (!(-e $alk_kompiled)) {
     print "Could not detect a compiled version of Alk.\nTrying to compile. Please wait...\n";
     my $kompile = File::Spec->catdir($kbin, "kompile");
     my $alk = File::Spec->catdir($alkdir, "alk.k");
-    local $_ = `$kompile $alk`;
+    local $_ = `$kompile $alk --transition "transition"`;
     print "Compilation complete. Resume...\n";
 }
 
+# setup search
+my $search_cmd = $search ? "--search" : "";
+# print "Search: $search_cmd";
+
+
 # execute krun on file with 
-local $_ = `$krun $file -cINIT="$init" --directory "$alkdir"`;
+local $_ = `$krun $file -cINIT="$init" --directory "$alkdir" $search_cmd`;
 
-
-# get content of <k>, <state>, and <stack> (eventually)
-my ($k, $state, $stk) = ("", "", "");
-if (/\<k\>(.*?)\<\/k\>.*?\<state\>(.*?)\<\/state\>.*?\<stack\>(.*?)\<\/stack\>/s) {
-    ($k, $state, $stk) = ($1, $2, $3);
-    $stk = $stack ? "Stack:\n$stk" : "";
-} elsif (/\<k\>(.*?)\<\/k\>.*?\<state\>(.*?)\<\/state\>/s) {
-    ($k, $state) = ($1, $2);
-    $stk = $stack ? "Cannot retrieve stack content.\n" : "";
-} else {
-    print "Program execution failed.\n";
-    exit 1;
+if ($search) {
+    
+    my @solutions = split('Solution');
+    
+    if (scalar(@solutions) <= 1) {
+	print;
+    }
+    else {
+	foreach (@solutions) {
+	    if (m/\s*([0-9]+?)\s*:(.+$)/sgm) {
+		print "Solution no $1:\n";
+		extract($2);
+		print "\n";
+	    }
+	}
+    }
+}
+else {
+    extract($_);
 }
 
 
-# trim <k>'s content
-$k =~ s/^\s+|\s+$//g;
+sub extract {
+    local $_ = shift;
 
+    # get content of <k>, <state>, and <stack> (eventually)
+    my ($k, $state, $stk) = ("", "", "");
+    if (/\<k\>(.*?)\<\/k\>.*?\<state\>(.*?)\<\/state\>.*?\<stack\>(.*?)\<\/stack\>/s) {
+	($k, $state, $stk) = ($1, $2, $3);
+	$stk = $stack ? "Stack:\n$stk" : "";
+    } elsif (/\<k\>(.*?)\<\/k\>.*?\<state\>(.*?)\<\/state\>/s) {
+	($k, $state) = ($1, $2);
+	$stk = $stack ? "Cannot retrieve stack content.\n" : "";
+    } else {
+	print "Program execution failed.\n";
+	exit 1;
+    }
+# trim <k>'s content
+    $k =~ s/^\s+|\s+$//g;
+    
 # main
-if ($k eq ".K") {
-    print "State:\n$state\n$stk";
-} elsif (($k eq "success ;") or ($k eq "failure ;")) {
-    print "Program status: $k\nState:\n$state\n$stk";	
-} else {
-    print "Program execution failed; the following code got stuck during execution:\n$k\nState:\n$state\n$stk";
+    if ($k eq ".K") {
+	print "State:\n$state\n$stk";
+    } elsif (($k eq "success ;") or ($k eq "failure ;")) {
+	print "Program status: $k\nState:\n$state\n$stk";	
+    } else {
+	print "Program execution failed; the following code got stuck during execution:\n$k\nState:\n$state\n$stk";
+    }    
 }
