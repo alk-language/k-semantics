@@ -1,7 +1,7 @@
 /*
   linear lists (sequences)
-  line 1 uncomented: krun tests/seq.alk -cINIT=".Map"
-  line 1 comented: krun tests/seq.alk -cINIT="ll |->  < 8, 3, 9, 4 >"
+  line 1 uncomented: alki seq.alk 
+  line 1 comented: alki seq.alk --init="ll |->  < 8, 3, 9, 4 >"
 */
 ll = < 8, 3, 9, 4, 5, 4 >;
 i = 1;

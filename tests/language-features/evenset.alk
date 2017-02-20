@@ -1,4 +1,7 @@
+/*
+  alki evenset.alk --init="a |-> {1, 2, 3, 4}"
+
 // s = emptySet;
  s = { 0 };
- forall x in a   // a is a set
+ forall x in a   // a is a input set
    if (x %2 == 0) s = s U singletonSet(x);

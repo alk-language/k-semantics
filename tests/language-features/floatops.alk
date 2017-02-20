@@ -1,6 +1,6 @@
 /*
   float operations
-  krun tests/ex1.alk -cINIT=".Map"
+  alki floatops.alk 
 */
 
 a = 0.314e+1;

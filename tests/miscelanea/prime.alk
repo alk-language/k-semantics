@@ -1,6 +1,6 @@
 /*
   the first N primes 
-  krun tests/prime.alk -cINIT=".Map"
+  alki prime.alk 
 */
 
 isPrime(x) {

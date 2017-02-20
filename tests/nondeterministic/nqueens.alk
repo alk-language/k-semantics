@@ -3,7 +3,7 @@
 @output: o asezare a n piese de tip regina pe tabla a.i. 
          nicio regina nu ataca o alta regina.
 
-krun tests/nqueens.alk -cINIT="n |-> 2" --search
+alki nqueens.alk --init="n |-> 2" --search
 */
 
 attacked(i, j, b) {

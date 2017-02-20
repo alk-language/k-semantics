@@ -1,7 +1,7 @@
 /*
   gcd
-  krun tests/gcd.alk -cINIT=".Map"
-  krun tests/gcd.alk -cINIT="u |-> 42 v |-> 56"
+  alki gcd.alk 
+  alki gcd.alk --init="u |-> 42 v |-> 56"
 */
 gcd(a, b)
 {

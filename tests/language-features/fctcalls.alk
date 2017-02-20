@@ -1,6 +1,6 @@
 /*
   function calls
-  krun tests/fctcalls.alk -cINIT=".Map"
+  alki fctcalls.alk 
 */
 f(a) {   // a hides the global a
   b = a + 1;

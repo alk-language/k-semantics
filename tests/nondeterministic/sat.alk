@@ -23,6 +23,6 @@ else failure;
 
 /*
 
-krun tests/sat.alk -cINIT="n |-> 4"
+alki sat.alk --init="n |-> 4"
 
 */

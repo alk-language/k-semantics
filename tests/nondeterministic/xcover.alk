@@ -36,7 +36,7 @@ C = { C1, C2, C3, C4, C5, C6, C7, C8 } where
    C7 = {6, 10, 12}
    C8 = {6, 11}
 
-krun xcover.alk -CINIT="
+alki xcover.alk --init="
    O |-> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }
    C |-> {
           {1, 2, 3},

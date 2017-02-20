@@ -1,6 +1,6 @@
 /*
   gcd recursiv
-  krun tests/gcdrec.alk -cINIT=".Map"
+  alki gcdrec.alk
 */
 gcd(a, b)
 {

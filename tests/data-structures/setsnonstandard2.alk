@@ -1,6 +1,6 @@
 /*
   sets used as lists or arrays
-  line 1 uncomented: krun tests/setsnonstandard.alk -cINIT=".Map"
+  line 1 uncomented: alki setsnonstandard.alk
 */
 s = { 2, 4, 6, 7 };
 s2 = s;

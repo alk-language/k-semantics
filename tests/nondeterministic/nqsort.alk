@@ -44,7 +44,7 @@ nqsort(b, 0, n-1);
 
 
 /*
-krun tests/qsort.alk -cINIT="n |-> 3 a |-> [3,1,2]"
+alki qsort.alk --init="n |-> 3 a |-> [3,1,2]"
 */
 
 

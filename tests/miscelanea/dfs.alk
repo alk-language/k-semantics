@@ -10,7 +10,8 @@ while (i < D.n) {
   S[i] = 0;
   i = i + 1;
 }
-SB = < i0 > ;
+SB = emptyList;
+SB.pushFront(i0);
 S[i0] = 1;
 // visit i0
 while (SB.size() > 0) {
@@ -36,8 +37,8 @@ while (SB.size() > 0) {
      D.a[1] = < 2, 0 >
      D.a[2] = < 0 >
    and the vertex i0 is one, then the krun command is 
-     krun tests/dfs.alk \
-       -cINIT="D |-> { n -> 3
+     alki dfs.alk \
+       --init="D |-> { n -> 3
                        a -> [ < 1, 2 >, < 2, 0 >,  < 0 > ] }
              i0 |-> 1"
 */

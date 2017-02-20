@@ -37,8 +37,8 @@ reached = dfs(D, i0);
      D.a[1] = <2, 0>
      D.a[2] = <0>
    and the vertex i0 is one, then the krun command is 
-     krun tests/dfsrec.alk \
-       -cINIT="D |-> { n -> 3
+     alki dfsrec.alk \
+       --init="D |-> { n -> 3
                        a -> [ < 1, 2 >, < 2, 0 >,  < 0 > ] }
                i0 |-> 1"
 */
