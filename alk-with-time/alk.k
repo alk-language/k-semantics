@@ -60,6 +60,7 @@ module ALK-SYNTAX
      | "floor" "(" Exp ")"     [strict]
      | "int" "(" Exp ")"       [strict]
      | "new" "(" Exp ")"       [strict]
+     | "random" "(" Exp ")"    [strict]
 //     | "{" Exp "}"            // singleton set
 //     | "<" Exp ">"            // singleton list
      |  "singletonSet" "(" Exp ")"        [strict]
@@ -270,6 +271,7 @@ module ALK
   rule int(F:Float) => Float2Int(F)
 
   rule random(I:Int) => randomRandom(I)
+       [transition]
 
   rule choose X:Id in S:Value;
        =>
