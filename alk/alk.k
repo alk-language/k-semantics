@@ -617,8 +617,8 @@ module ALK
   rule it(X, I) -It J => it(X, I -Int J)
 
   rule it(X, I) %It J => it(X, I) requires (0 <=Int I) andBool (I <Int J)
-  rule it(X, I) %It J => it(X, I -Int J) requires (0 <=Int I) andBool (I >=Int J)
-  rule it(X, I) %It J => it(X, I +Int J) requires (I <Int 0)
+  rule it(X, I) %It J => it(X, I -Int J) %It J requires (0 <=Int I) andBool (I >=Int J)
+  rule it(X, I) %It J => it(X, I +Int J) %It J requires (I <Int 0)
   rule it(X, I) %It 0 => it(X, -1)
 
 
