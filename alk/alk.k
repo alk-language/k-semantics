@@ -1,11 +1,11 @@
 // TODO: add the copyright notice
 // TODO: change the syntax for structures: x : v instead of x -> v
 //require "domains.k"
-require "../packages/compgeom.k"
+//require "../packages/compgeom.k"
 
 module ALK-SYNTAX 
 
-  imports COMPGEOM
+//  imports COMPGEOM
   syntax DVar ::= "NULL"
 
   syntax ValFld ::=
