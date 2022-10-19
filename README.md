@@ -10,3 +10,6 @@ Installation instructions
 2. Please add the `pathToK/bin` into your system's `PATH` environment variable
 3. Change directory to `pathToAlk/alk` and compile the language definition `kompile alk.k`
 4. Optional: add the `pathToAlk/bin` into your system's `PATH` if you want to use the bundled customized interpreter.
+
+**Warning: This version of the Alk Language is deprecated. The last version of Alk can be found at
+https://github.com/alk-language/java-semantics/.**
